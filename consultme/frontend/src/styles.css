@@ -1,0 +1,23 @@
+/* Globalne boje (koriste ih sve komponente preko var(--ime)) */
+:root {
+  --tinta: #1f3a5f;       /* tamnoplava, kao mastilo */
+  --akcenat: #3a8f7a;     /* zelena za fokus i ivice kartica */
+  --crvena: #b3261e;
+  --povrsina: #ffffff;
+  --pozadina: #f1f4f7;
+  --ivica: #d3dae2;
+  --tekst: #1c2430;
+  --tekst-blago: #5a6676;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  background: var(--pozadina);
+  color: var(--tekst);
+  line-height: 1.5;
+}

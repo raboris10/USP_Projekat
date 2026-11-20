@@ -1,0 +1,91 @@
+# Ime projekta (grupe kontejnera) u Docker Desktop-u
+name: consultme
+
+services:
+
+  # ------------------------------------------------------------------
+  # BAZA - MySQL
+  # ------------------------------------------------------------------
+  db:
+    image: mysql:8.4                 # zakucana verzija (8.4 je LTS)
+    container_name: consultme-db
+
+    environment:                     # vrednosti stižu iz .env fajla
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}     # pravi bazu pri prvom pokretanju
+      MYSQL_USER: ${DB_USER}         # i korisnika sa pristupom toj bazi
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+
+    ports:
+      - "${DB_HOST_PORT}:3306"       # vaš računar : kontejner (za DBeaver)
+
+    volumes:
+      - consultme-db-data:/var/lib/mysql                               # podaci preživljavaju restart
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro          # tabele + početni podaci
+
+    # "Da li je baza spremna?" - backend čeka dok ovo ne prođe
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+    networks:
+      - consultme-net
+
+  # ------------------------------------------------------------------
+  # BACKEND - Spring Boot (Java 25)
+  # ------------------------------------------------------------------
+  backend:
+    build: ./backend                 # koristi backend/Dockerfile
+    container_name: consultme-backend
+
+    environment:                     # čita ih application.properties
+      DB_HOST: db                    # ime servisa iznad, NE localhost!
+      DB_PORT: 3306                  # port unutar Docker mreže
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_TRAJANJE_MINUTA: ${JWT_TRAJANJE_MINUTA}
+
+    ports:
+      - "${BACKEND_HOST_PORT}:8080"  # za Swagger iz browsera
+
+    depends_on:
+      db:
+        condition: service_healthy   # kreni tek kad healthcheck baze prođe
+
+    networks:
+      - consultme-net
+
+  # ------------------------------------------------------------------
+  # FRONTEND - Angular dev server
+  # ------------------------------------------------------------------
+  frontend:
+    build: ./frontend                # koristi frontend/Dockerfile
+    container_name: consultme-frontend
+
+    ports:
+      - "${FRONTEND_HOST_PORT}:4200"
+
+    volumes:
+      # Vaš src folder je "uživo" povezan sa kontejnerom:
+      # sačuvate fajl u VS Code-u -> Angular sam osveži stranicu
+      - ./frontend/src:/app/src
+
+    depends_on:
+      - backend
+
+    networks:
+      - consultme-net
+
+# Imenovani volumen u kom MySQL čuva podatke
+volumes:
+  consultme-db-data:
+
+# Zajednička mreža - kontejneri se u njoj vide po imenu servisa (db, backend, frontend)
+networks:
+  consultme-net:
+    driver: bridge

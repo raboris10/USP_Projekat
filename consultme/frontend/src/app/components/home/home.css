@@ -1,0 +1,130 @@
+/* Dve kolone na računaru, jedna ispod druge na telefonu */
+.strana {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  align-items: center;
+  gap: 3rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+@media (max-width: 760px) {
+  .strana {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    min-height: auto;
+    padding-top: 3rem;
+  }
+}
+
+h1 {
+  font-size: clamp(2.6rem, 7vw, 4rem);
+  line-height: 1;
+  margin: 0 0 0.75rem;
+  color: var(--tinta);
+  letter-spacing: -0.03em;
+}
+
+.podnaslov {
+  font-size: 1.25rem;
+  margin: 0 0 1rem;
+  color: var(--tinta);
+}
+
+.opis {
+  max-width: 36ch;
+  color: var(--tekst-blago);
+  margin: 0;
+}
+
+.kartica {
+  background: var(--povrsina);
+  border: 1px solid var(--ivica);
+  border-top: 4px solid var(--akcenat);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+h2 {
+  margin: 0 0 1.25rem;
+  font-size: 1.2rem;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--tekst-blago);
+}
+
+input {
+  font: inherit;
+  font-size: 1rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--ivica);
+  border-radius: 4px;
+  color: var(--tekst);
+}
+
+button {
+  font: inherit;
+  font-weight: 600;
+  padding: 0.7rem;
+  border: none;
+  border-radius: 4px;
+  background: var(--tinta);
+  color: #fff;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+input:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--akcenat);
+  outline-offset: 2px;
+}
+
+.greska {
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+  border-left: 4px solid var(--crvena);
+  background: #fdf0ef;
+  color: var(--crvena);
+  font-size: 0.9rem;
+}
+
+.test-nalozi {
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--tekst-blago);
+}
+
+.test-nalozi summary {
+  cursor: pointer;
+}
+
+.test-nalozi table {
+  margin-top: 0.5rem;
+  border-collapse: collapse;
+}
+
+.test-nalozi td {
+  padding: 0.2rem 1rem 0.2rem 0;
+}
+
+.test-nalozi p {
+  margin: 0.5rem 0 0;
+}

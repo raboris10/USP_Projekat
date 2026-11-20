@@ -1,0 +1,14 @@
+# Git automatski sređuje krajeve linija za tekstualne fajlove
+* text=auto
+
+# Ovi fajlovi se pokreću u Linux kontejneru -> moraju imati Linux kraj linije (LF)
+backend/mvnw text eol=lf
+*.sh text eol=lf
+
+# Windows skripte -> Windows kraj linije (CRLF)
+*.cmd text eol=crlf
+
+# Binarni fajlovi - Git ih ne dira
+*.pdf binary
+*.png binary
+*.ico binary

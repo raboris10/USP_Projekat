@@ -1,0 +1,16 @@
+# lozinke, JWT ključ i portovi - svako ima svoj .env
+.env
+
+# Angular
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# Spring / Maven
+backend/target/
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+Thumbs.db

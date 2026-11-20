@@ -1,0 +1,53 @@
+<main class="strana">
+
+  <!-- Leva strana: naziv i kratak opis aplikacije -->
+  <section class="uvod">
+    <h1>ConsultMe</h1>
+    <p class="podnaslov">Zakazivanje konsultacija sa profesorima</p>
+    <p class="opis">
+      Profesori objavljuju termine, studenti ih rezervišu,
+      a svi dobijaju obaveštenje kad se nešto promeni.
+    </p>
+  </section>
+
+  <!-- Desna strana: forma za prijavu -->
+  <section class="kartica">
+    <h2>Prijava</h2>
+
+    <!-- (ngSubmit) -> poziva prijaviSe() na klik dugmeta ili Enter -->
+    <form (ngSubmit)="prijaviSe()">
+      <label>
+        Email
+        <input type="email" name="email" [(ngModel)]="email"
+               autocomplete="username" placeholder="ime.prezime&#64;fakultet.rs" />
+      </label>
+
+      <label>
+        Lozinka
+        <input type="password" name="lozinka" [(ngModel)]="lozinka"
+               autocomplete="current-password" />
+      </label>
+
+      <!-- greška se prikazuje samo ako postoji -->
+      @if (greska()) {
+        <p class="greska" role="alert">{{ greska() }}</p>
+      }
+
+      <button type="submit" [disabled]="ucitavanje()">
+        {{ ucitavanje() ? 'Prijavljivanje...' : 'Prijavi se' }}
+      </button>
+    </form>
+
+    <!-- Pomoć za razvoj: nalozi iz db/init.sql. Ukloniti pre pilota! -->
+    <details class="test-nalozi">
+      <summary>Test nalozi</summary>
+      <table>
+        <tr><td>admin&#64;consultme.rs</td><td>admin123</td></tr>
+        <tr><td>profesor&#64;consultme.rs</td><td>profesor123</td></tr>
+        <tr><td>student&#64;consultme.rs</td><td>student123</td></tr>
+      </table>
+      <p>Fakultetski nalozi (&#64;fakultet.rs) imaju lozinku lozinka123, npr. ana.anic&#64;fakultet.rs ili zoran.zoranic&#64;fakultet.rs.</p>
+    </details>
+  </section>
+
+</main>
