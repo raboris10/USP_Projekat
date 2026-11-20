@@ -1,0 +1,19 @@
+<main class="strana">
+  <section class="kartica">
+
+    @if (korisnik(); as k) {
+      <!-- "as k" -> kraće ime za korisnik() unutar ovog bloka -->
+      <h1>Uspešna prijava</h1>
+      <p class="red"><span>Email</span> {{ k.email }}</p>
+      <p class="red"><span>Uloga</span> <strong class="uloga">{{ k.uloga }}</strong></p>
+      <p class="red"><span>Ime</span> {{ k.ime }} {{ k.prezime }}</p>
+      <p class="napomena">Podatke je vratio backend sa zaštićene rute /api/korisnici/ja, što znači da JWT token radi.</p>
+    } @else if (greska()) {
+      <p class="greska" role="alert">{{ greska() }}</p>
+    } @else {
+      <p>Proveravam prijavu...</p>
+    }
+
+    <button (click)="odjaviSe()">Odjavi se</button>
+  </section>
+</main>

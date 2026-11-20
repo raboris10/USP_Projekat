@@ -1,0 +1,66 @@
+.strana {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1.5rem;
+}
+
+.kartica {
+  width: 100%;
+  max-width: 460px;
+  background: var(--povrsina);
+  border: 1px solid var(--ivica);
+  border-top: 4px solid var(--akcenat);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+h1 {
+  margin: 0 0 1.25rem;
+  font-size: 1.6rem;
+  color: var(--tinta);
+}
+
+.red {
+  margin: 0 0 0.6rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.red span {
+  width: 4.5rem;
+  color: var(--tekst-blago);
+}
+
+.uloga {
+  color: var(--tinta);
+}
+
+.napomena {
+  margin: 1.25rem 0;
+  font-size: 0.85rem;
+  color: var(--tekst-blago);
+}
+
+.greska {
+  color: var(--crvena);
+}
+
+button {
+  font: inherit;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--ivica);
+  border-radius: 4px;
+  background: var(--povrsina);
+  color: var(--tekst);
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: var(--tinta);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--akcenat);
+  outline-offset: 2px;
+}
