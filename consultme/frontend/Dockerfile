@@ -3,11 +3,10 @@ FROM node:24-alpine
 
 WORKDIR /app
 
-# Isključujemo pitanje o slanju statistike Angular timu (inače bi kontejner čekao odgovor)
+# Isključujemo pitanje o slanju statistike Angular timu
 ENV NG_CLI_ANALYTICS=false
 
-# Prvo samo package fajlovi -> Docker kešira instalirane pakete,
-# pa se npm ci ponovo pokreće samo kad se promeni package.json / package-lock.json
+# Prvo samo package fajlovi -> Docker kešira instalirane pakete
 COPY package.json package-lock.json ./
 RUN npm ci
 
@@ -17,5 +16,6 @@ COPY . .
 EXPOSE 4200
 
 # --host 0.0.0.0  -> dev server prihvata konekcije izvan kontejnera
-# --poll 2000     -> na Windows-u Docker ne vidi izmene fajlova sam, pa proverava na 2 sekunde
-CMD ["npx", "ng", "serve", "--host", "0.0.0.0", "--poll", "2000"]
+# --poll 2000     -> na Windows-u Docker ne vidi izmene fajlova sam
+# --proxy-config  -> /api pozivi idu na backend:8080
+CMD ["npx", "ng", "serve", "--host", "0.0.0.0", "--poll", "2000", "--proxy-config", "proxy.conf.json"]

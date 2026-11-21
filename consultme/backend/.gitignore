@@ -1,17 +1,8 @@
-HELP.md
 target/
-.mvn/wrapper/maven-wrapper.jar
-
-### Eclipse ###
-.settings/
-.classpath
-.project
-.factorypath
-.apt_generated
-.springBeans
-.sts4-cache
-
-### IntelliJ / VS Code ###
 .idea/
 *.iml
 .vscode/
+.settings/
+.classpath
+.project
+.DS_Store
