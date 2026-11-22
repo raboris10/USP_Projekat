@@ -1,0 +1,11 @@
+.tema {
+  margin-top: 0.35rem;
+  font-style: italic;
+  overflow-wrap: anywhere;
+}
+
+.napomena {
+  max-width: 14rem;
+  font-size: 0.82rem;
+  color: var(--tekst-blago);
+}

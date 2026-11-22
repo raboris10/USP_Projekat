@@ -1,0 +1,88 @@
+<div class="naslov-strane">
+  <h1>Moje rezervacije</h1>
+</div>
+
+<div class="tabovi" role="tablist">
+  <button type="button" role="tab" [class.aktivan]="tab() === 'predstojece'"
+          [attr.aria-selected]="tab() === 'predstojece'" (click)="tab.set('predstojece')">
+    Predstojeće ({{ predstojece().length }})
+  </button>
+  <button type="button" role="tab" [class.aktivan]="tab() === 'prosle'"
+          [attr.aria-selected]="tab() === 'prosle'" (click)="tab.set('prosle')">
+    Prošle ({{ prosle().length }})
+  </button>
+</div>
+
+@if (ucitavanje()) {
+  <p>Učitavanje...</p>
+} @else if (prikazane().length === 0) {
+  <p class="prazno">
+    @if (tab() === 'predstojece') {
+      Nemate predstojećih rezervacija. Slobodne termine pronađite na stranici Termini.
+    } @else {
+      Još nemate prošlih rezervacija.
+    }
+  </p>
+} @else {
+  <ul class="lista-termina">
+    @for (r of prikazane(); track r.id) {
+      @let t = r.termin;
+      @let otkazano = r.status === 'OTKAZANA' || t.status === 'OTKAZAN';
+      <li class="termin-kartica">
+        <app-datum-blok [datum]="t.pocetak" [ugaseno]="otkazano || tab() === 'prosle'" />
+
+        <div class="detalji">
+          <span class="vreme">{{ t.pocetak | date: 'HH:mm' }} – {{ t.kraj | date: 'HH:mm' }}</span>
+          <span><strong>prof. {{ t.profesorIme }} {{ t.profesorPrezime }}</strong></span>
+          <span class="sporedno">{{ t.predmetNaziv ?? 'Opšte konsultacije' }}</span>
+          <span class="sporedno">
+            @if (jeLink(t.mesto)) {
+              Onlajn: <a [href]="t.mesto" target="_blank" rel="noopener">{{ t.mesto }}</a>
+            } @else {
+              {{ t.mesto }}
+            }
+          </span>
+          <span class="tema">Tema: {{ r.tema }}</span>
+        </div>
+
+        <div class="akcije-kartice">
+          <!-- Status: termin otkazao profesor / rezervaciju otkazao student / aktivna -->
+          @if (t.status === 'OTKAZAN') {
+            <span class="bedz bedz-opasno">Termin otkazan</span>
+          } @else if (r.status === 'OTKAZANA') {
+            <span class="bedz bedz-neutralno">Otkazana</span>
+          } @else if (tab() === 'predstojece') {
+            <span class="bedz bedz-uspeh">Aktivna</span>
+          }
+
+          @if (r.mozeDaSeOtkaze) {
+            <button type="button" class="dugme dugme-opasno dugme-malo" (click)="zaOtkazivanje.set(r)">Otkaži</button>
+          } @else if (!otkazano && tab() === 'predstojece') {
+            <span class="napomena">Otkazivanje je moguće najkasnije 2 sata pre termina.</span>
+          }
+        </div>
+      </li>
+    }
+  </ul>
+}
+
+<!-- Potvrda otkazivanja -->
+@if (zaOtkazivanje(); as r) {
+  <div class="dijalog-pozadina" (click)="zaOtkazivanje.set(null)">
+    <div class="dijalog" role="alertdialog" aria-modal="true" aria-labelledby="naslov-otkazivanja"
+         (click)="$event.stopPropagation()">
+      <h2 id="naslov-otkazivanja">Otkazati rezervaciju?</h2>
+      <p>
+        Termin {{ r.termin.pocetak | date: 'EEEE, d. MMMM, HH:mm' }} kod prof.
+        {{ r.termin.profesorIme }} {{ r.termin.profesorPrezime }}.
+        Profesor će dobiti obaveštenje.
+      </p>
+      <div class="dugmad">
+        <button type="button" class="dugme dugme-sekundarno" (click)="zaOtkazivanje.set(null)">Ne, zadrži</button>
+        <button type="button" class="dugme dugme-opasno" [disabled]="slanje()" (click)="potvrdiOtkazivanje()">
+          {{ slanje() ? 'Otkazivanje...' : 'Otkaži rezervaciju' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { Home } from './components/home/home';
 import { Notifikacije } from './components/notifikacije/notifikacije';
+import { StudentRezervacije } from './components/student/rezervacije/rezervacije';
+import { StudentTermini } from './components/student/termini/termini';
 import { UIzradi } from './components/u-izradi/u-izradi';
 import { authGuard } from './guards/auth-guard';
 import { ulogaGuard } from './guards/uloga-guard';
@@ -13,8 +15,8 @@ export const routes: Routes = [
   { path: 'notifikacije', component: Notifikacije, canActivate: [authGuard] },
 
   // Student
-  { path: 'student/termini', component: UIzradi, canActivate: [ulogaGuard('STUDENT')], data: { naslov: 'Termini' } },
-  { path: 'student/rezervacije', component: UIzradi, canActivate: [ulogaGuard('STUDENT')], data: { naslov: 'Moje rezervacije' } },
+  { path: 'student/termini', component: StudentTermini, canActivate: [ulogaGuard('STUDENT')] },
+  { path: 'student/rezervacije', component: StudentRezervacije, canActivate: [ulogaGuard('STUDENT')] },
 
   // Profesor
   { path: 'profesor/termini', component: UIzradi, canActivate: [ulogaGuard('PROFESOR')], data: { naslov: 'Moji termini' } },

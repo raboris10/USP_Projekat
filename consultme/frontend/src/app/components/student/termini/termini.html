@@ -1,0 +1,121 @@
+<div class="naslov-strane">
+  <h1>Termini</h1>
+</div>
+
+<!-- Filteri: svaka promena odmah pokreće novu pretragu -->
+<div class="filteri">
+  <label class="polje">
+    Profesor
+    <select [(ngModel)]="profesorId" (ngModelChange)="pretrazi()">
+      <option [ngValue]="null">Svi profesori</option>
+      @for (p of profesori(); track p.id) {
+        <option [ngValue]="p.id">{{ p.prezime }} {{ p.ime }}</option>
+      }
+    </select>
+  </label>
+
+  <label class="polje">
+    Predmet
+    <select [(ngModel)]="predmetId" (ngModelChange)="pretrazi()">
+      <option [ngValue]="null">Svi predmeti</option>
+      @for (p of predmeti(); track p.id) {
+        <option [ngValue]="p.id">{{ p.naziv }} ({{ p.sifra }})</option>
+      }
+    </select>
+  </label>
+
+  <label class="polje">
+    Od datuma
+    <input type="date" [(ngModel)]="odDatuma" (ngModelChange)="pretrazi()" />
+  </label>
+
+  <label class="polje">
+    Do datuma
+    <input type="date" [(ngModel)]="doDatuma" (ngModelChange)="pretrazi()" />
+  </label>
+
+  @if (imaZadatihFiltera()) {
+    <button type="button" class="dugme dugme-sekundarno" (click)="ponistiFiltere()">Poništi filtere</button>
+  }
+</div>
+
+@if (ucitavanje()) {
+  <p>Učitavanje...</p>
+} @else if (termini().length === 0) {
+  <p class="prazno">
+    @if (imaZadatihFiltera()) {
+      Nema termina za izabrane filtere. Probajte drugi datum ili drugog profesora.
+    } @else {
+      Trenutno nema objavljenih termina.
+    }
+  </p>
+} @else {
+  <ul class="lista-termina">
+    @for (t of termini(); track t.id) {
+      <li class="termin-kartica">
+        <app-datum-blok [datum]="t.pocetak" />
+
+        <div class="detalji">
+          <span class="vreme">{{ t.pocetak | date: 'HH:mm' }} – {{ t.kraj | date: 'HH:mm' }}</span>
+          <span><strong>prof. {{ t.profesorIme }} {{ t.profesorPrezime }}</strong></span>
+          <span class="sporedno">{{ t.predmetNaziv ?? 'Opšte konsultacije' }}</span>
+          <span class="sporedno">
+            @if (jeLink(t.mesto)) {
+              Onlajn: <a [href]="t.mesto" target="_blank" rel="noopener">{{ t.mesto }}</a>
+            } @else {
+              {{ t.mesto }}
+            }
+          </span>
+        </div>
+
+        <div class="akcije-kartice">
+          @if (mojiTerminIds().has(t.id)) {
+            <span class="bedz bedz-uspeh">Rezervisano</span>
+          } @else if (t.slobodnihMesta === 0) {
+            <span class="bedz bedz-opasno">Popunjeno</span>
+          } @else {
+            <span class="sporedno">Slobodno: {{ t.slobodnihMesta }} od {{ t.kapacitet }}</span>
+            <button type="button" class="dugme dugme-malo" (click)="otvoriDijalog(t)">Rezerviši</button>
+          }
+        </div>
+      </li>
+    }
+  </ul>
+}
+
+<!-- Dijalog za rezervaciju: prikazuje se kad je izabran termin -->
+@if (izabraniTermin(); as t) {
+  <div class="dijalog-pozadina" (click)="zatvoriDijalog()">
+    <!-- $event.stopPropagation() -> klik unutar dijaloga ne zatvara dijalog -->
+    <div class="dijalog" role="dialog" aria-modal="true" aria-labelledby="naslov-rezervacije"
+         (click)="$event.stopPropagation()">
+      <h2 id="naslov-rezervacije">Rezervacija termina</h2>
+
+      <p class="rezime">
+        <strong>{{ t.pocetak | date: 'EEEE, d. MMMM' }}, {{ t.pocetak | date: 'HH:mm' }} – {{ t.kraj | date: 'HH:mm' }}</strong><br />
+        prof. {{ t.profesorIme }} {{ t.profesorPrezime }}, {{ t.predmetNaziv ?? 'opšte konsultacije' }}<br />
+        {{ t.mesto }}
+      </p>
+
+      <form (ngSubmit)="rezervisi()">
+        <label class="polje">
+          Tema konsultacija
+          <textarea name="tema" [(ngModel)]="tema" maxlength="500" rows="4"
+                    placeholder="Npr. pitanja o projektnoj dokumentaciji"></textarea>
+          <small>{{ tema.length }} / 500</small>
+        </label>
+
+        @if (greskaDijaloga()) {
+          <p class="greska" role="alert">{{ greskaDijaloga() }}</p>
+        }
+
+        <div class="dugmad">
+          <button type="button" class="dugme dugme-sekundarno" (click)="zatvoriDijalog()">Odustani</button>
+          <button type="submit" class="dugme" [disabled]="slanje()">
+            {{ slanje() ? 'Rezervisanje...' : 'Rezerviši' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

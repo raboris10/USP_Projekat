@@ -167,6 +167,12 @@ textarea {
   color: var(--tekst);
 }
 
+/* ista visina za polja i padajuće menije, da se poravnaju u redu sa filterima */
+input:not([type="checkbox"]):not([type="radio"]),
+select {
+  min-height: 2.6rem;
+}
+
 textarea {
   resize: vertical;
   min-height: 5rem;
@@ -298,4 +304,79 @@ input[type="radio"] {
     transition: none !important;
     animation: none !important;
   }
+}
+
+/* =====================================================================
+   KARTICA TERMINA (student i profesor)
+   [ list kalendara ] [ vreme, profesor, predmet, mesto ] [ status i dugmad ]
+   ===================================================================== */
+
+.lista-termina {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.termin-kartica {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  background: var(--povrsina);
+  border: 1px solid var(--ivica);
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.termin-kartica .detalji {
+  flex: 1;
+  min-width: 0;            /* da dugačak link za onlajn sastanak ne razvuče karticu */
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.termin-kartica .vreme {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.termin-kartica .sporedno {
+  color: var(--tekst-blago);
+  font-size: 0.92rem;
+  overflow-wrap: anywhere;
+}
+
+.termin-kartica .akcije-kartice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  text-align: right;
+}
+
+/* Telefon: status i dugmad idu ispod podataka, preko cele širine */
+@media (max-width: 600px) {
+  .termin-kartica {
+    flex-wrap: wrap;
+  }
+  .termin-kartica .akcije-kartice {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+/* Red sa filterima iznad liste */
+.filteri {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.75rem;
+  align-items: end;
+  margin-bottom: 1.25rem;
 }
