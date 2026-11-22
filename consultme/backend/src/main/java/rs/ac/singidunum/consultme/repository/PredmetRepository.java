@@ -20,4 +20,8 @@ public interface PredmetRepository extends JpaRepository<Predmet, Long> {
 
 	boolean existsBySifraIgnoreCaseAndIdNot(String sifra, Long id);
 
+	// Da li je profesor dodeljen bar jednom predmetu (za proveru pre promene uloge)
+	// (ProfesoriId -> traži po id-ju unutar kolekcije profesori)
+	boolean existsByProfesoriId(Long profesorId);
+
 }

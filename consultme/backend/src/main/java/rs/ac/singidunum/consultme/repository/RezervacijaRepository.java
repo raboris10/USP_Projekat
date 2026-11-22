@@ -57,4 +57,12 @@ public interface RezervacijaRepository extends JpaRepository<Rezervacija, Long> 
 			@Param("pocetak") LocalDateTime pocetak,
 			@Param("kraj") LocalDateTime kraj);
 
+	// Da li student ima ijednu rezervaciju (za proveru pre promene uloge)
+	boolean existsByStudentId(Long studentId);
+
+	// Rezervacije studenta sa datim statusom za termine posle datog trenutka
+	// (npr. AKTIVNE buduće rezervacije -> otkazuju se kad se student deaktivira)
+	List<Rezervacija> findByStudentIdAndStatusAndTerminPocetakAfter(Long studentId, StatusRezervacije status,
+			LocalDateTime posle);
+
 }

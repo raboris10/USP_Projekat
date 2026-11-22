@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import jakarta.persistence.LockModeType;
+import rs.ac.singidunum.consultme.model.StatusTermina;
 import rs.ac.singidunum.consultme.model.Termin;
 
 public interface TerminRepository extends JpaRepository<Termin, Long> {
@@ -64,5 +65,12 @@ public interface TerminRepository extends JpaRepository<Termin, Long> {
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Query("select t from Termin t where t.id = :id")
 	Optional<Termin> zakljucajZaRezervaciju(@Param("id") Long id);
+
+	// Da li profesor ima ijedan termin (za proveru pre promene uloge)
+	boolean existsByProfesorId(Long profesorId);
+
+	// Da li profesor ima termin sa datim statusom posle datog trenutka
+	// (npr. AKTIVAN termin u budućnosti -> profesor ne sme da se deaktivira)
+	boolean existsByProfesorIdAndStatusAndPocetakAfter(Long profesorId, StatusTermina status, LocalDateTime posle);
 
 }

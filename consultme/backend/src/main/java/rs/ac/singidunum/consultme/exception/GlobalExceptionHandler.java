@@ -4,10 +4,12 @@ import java.util.Map;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 // Hvata greške iz svih kontrolera i vraća ih frontendu u istom obliku:
 // { "poruka": "..." }
@@ -61,6 +63,21 @@ public class GlobalExceptionHandler {
 				.findFirst()
 				.orElse("Neispravni podaci.");
 		return Map.of("poruka", poruka);
+	}
+
+	// 400 - telo zahteva ne može da se pročita (neispravan JSON, pogrešan format datuma,
+	// nepostojeća uloga npr. "uloga": "DEKAN"...)
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public Map<String, String> handleNecitljivZahtev(HttpMessageNotReadableException ex) {
+		return Map.of("poruka", "Neispravan format podataka u zahtevu.");
+	}
+
+	// 400 - parametar u adresi je pogrešnog tipa (npr. /api/termini/abc ili ?uloga=DEKAN)
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public Map<String, String> handlePogresanParametar(MethodArgumentTypeMismatchException ex) {
+		return Map.of("poruka", "Neispravna vrednost parametra: " + ex.getName() + ".");
 	}
 
 }

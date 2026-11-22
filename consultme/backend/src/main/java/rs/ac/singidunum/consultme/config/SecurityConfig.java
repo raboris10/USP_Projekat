@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import rs.ac.singidunum.consultme.repository.KorisnikRepository;
 import rs.ac.singidunum.consultme.security.JwtFilter;
 import rs.ac.singidunum.consultme.security.JwtService;
 
@@ -26,9 +27,11 @@ import rs.ac.singidunum.consultme.security.JwtService;
 public class SecurityConfig {
 
 	private final JwtService jwtService;
+	private final KorisnikRepository korisnikRepository;
 
-	public SecurityConfig(JwtService jwtService) {
+	public SecurityConfig(JwtService jwtService, KorisnikRepository korisnikRepository) {
 		this.jwtService = jwtService;
+		this.korisnikRepository = korisnikRepository;
 	}
 
 	@Bean
@@ -74,7 +77,7 @@ public class SecurityConfig {
 				}))
 
 			// Naš JwtFilter se izvršava pre Spring-ovog filtera za prijavu
-			.addFilterBefore(new JwtFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
+			.addFilterBefore(new JwtFilter(jwtService, korisnikRepository), UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
