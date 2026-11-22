@@ -72,6 +72,7 @@ input {
   padding: 0.6rem 0.7rem;
   border: 1px solid var(--ivica);
   border-radius: 4px;
+  background: var(--povrsina);
   color: var(--tekst);
 }
 
@@ -81,8 +82,8 @@ button {
   padding: 0.7rem;
   border: none;
   border-radius: 4px;
-  background: var(--tinta);
-  color: #fff;
+  background: var(--dugme);
+  color: var(--dugme-tekst);
   cursor: pointer;
 }
 
@@ -101,7 +102,7 @@ button:focus-visible {
   margin: 0;
   padding: 0.6rem 0.8rem;
   border-left: 4px solid var(--crvena);
-  background: #fdf0ef;
+  background: var(--greska-pozadina);
   color: var(--crvena);
   font-size: 0.9rem;
 }
@@ -127,4 +128,17 @@ button:focus-visible {
 
 .test-nalozi p {
   margin: 0.5rem 0 0;
+}
+
+/* Prekidač teme u gornjem desnom uglu */
+.tema {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.35rem 0.8rem;
+  font-weight: 400;
+  font-size: 0.875rem;
+  background: transparent;
+  color: var(--tekst-blago);
+  border: 1px solid var(--ivica);
 }

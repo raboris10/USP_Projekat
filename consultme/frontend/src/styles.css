@@ -1,13 +1,52 @@
-/* Globalne boje (koriste ih sve komponente preko var(--ime)) */
+/* =====================================================================
+   GLOBALNI STILOVI
+   Boje su CSS promenljive (var(--ime)). Svetla tema je podrazumevana,
+   a tamna samo menja vrednosti istih promenljivih kad <html> ima
+   atribut data-tema="tamna" (postavlja ga TemaService).
+   ===================================================================== */
+
+/* ----- Svetla tema ----- */
 :root {
-  --tinta: #1f3a5f;       /* tamnoplava, kao mastilo */
-  --akcenat: #3a8f7a;     /* zelena za fokus i ivice kartica */
+  --tinta: #1f3a5f;          /* tamnoplava, kao mastilo - naslovi */
+  --akcenat: #3a8f7a;        /* zelena za fokus, aktivne linkove i ivice */
   --crvena: #b3261e;
-  --povrsina: #ffffff;
-  --pozadina: #f1f4f7;
+  --zuta: #8a5a00;
+  --povrsina: #ffffff;       /* kartice, zaglavlje */
+  --pozadina: #f1f4f7;       /* pozadina stranice */
   --ivica: #d3dae2;
   --tekst: #1c2430;
   --tekst-blago: #5a6676;
+
+  --dugme: #1f3a5f;          /* glavno dugme */
+  --dugme-tekst: #ffffff;
+  --greska-pozadina: #fdf0ef;
+  --uspeh-pozadina: #e8f4f0;
+  --upozorenje-pozadina: #fdf4e3;
+  --senka-dijaloga: rgba(15, 25, 40, 0.45);
+
+  color-scheme: light;       /* browser crta skrolbar i kalendar u svetlim bojama */
+}
+
+/* ----- Tamna tema ----- */
+:root[data-tema="tamna"] {
+  --tinta: #a9c8ea;
+  --akcenat: #5fbfa5;
+  --crvena: #ff8a80;
+  --zuta: #f0c36a;
+  --povrsina: #18212c;
+  --pozadina: #0f161f;
+  --ivica: #2c3a4a;
+  --tekst: #e3e9f0;
+  --tekst-blago: #9aa7b6;
+
+  --dugme: #a9c8ea;
+  --dugme-tekst: #0f161f;
+  --greska-pozadina: #3a1f1e;
+  --uspeh-pozadina: #15322b;
+  --upozorenje-pozadina: #3a2f14;
+  --senka-dijaloga: rgba(0, 0, 0, 0.65);
+
+  color-scheme: dark;
 }
 
 * {
@@ -20,4 +59,324 @@ body {
   background: var(--pozadina);
   color: var(--tekst);
   line-height: 1.5;
+}
+
+a {
+  color: var(--akcenat);
+}
+
+h1, h2, h3 {
+  color: var(--tinta);
+  line-height: 1.2;
+}
+
+/* =====================================================================
+   RASPORED STRANICE
+   ===================================================================== */
+
+/* Sadržaj ispod zaglavlja (vidi app.html) */
+.sadrzaj {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+}
+
+/* Naslov stranice levo, dugmad desno; na telefonu jedno ispod drugog */
+.naslov-strane {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.naslov-strane h1 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+/* =====================================================================
+   DUGMAD
+   ===================================================================== */
+
+.dugme {
+  font: inherit;
+  font-weight: 600;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--dugme);
+  border-radius: 4px;
+  background: var(--dugme);
+  color: var(--dugme-tekst);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.dugme:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.dugme-sekundarno {
+  background: transparent;
+  color: var(--tinta);
+  border-color: var(--ivica);
+}
+
+.dugme-opasno {
+  background: transparent;
+  color: var(--crvena);
+  border-color: var(--crvena);
+}
+
+.dugme-malo {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.875rem;
+}
+
+/* Vidljiv fokus za tastaturu (Tab) */
+:focus-visible {
+  outline: 2px solid var(--akcenat);
+  outline-offset: 2px;
+}
+
+/* =====================================================================
+   FORME
+   ===================================================================== */
+
+.polje {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+  color: var(--tekst-blago);
+}
+
+input,
+select,
+textarea {
+  font: inherit;
+  font-size: 1rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--ivica);
+  border-radius: 4px;
+  background: var(--povrsina);
+  color: var(--tekst);
+}
+
+/* ista visina za polja i padajuće menije, da se poravnaju u redu sa filterima */
+input:not([type="checkbox"]):not([type="radio"]),
+select {
+  min-height: 2.6rem;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 5rem;
+}
+
+/* Checkbox i radio ne treba da se rastegnu kao ostala polja */
+input[type="checkbox"],
+input[type="radio"] {
+  width: auto;
+  accent-color: var(--akcenat);
+}
+
+/* =====================================================================
+   KARTICE, PORUKE, OZNAKE
+   ===================================================================== */
+
+.kartica {
+  background: var(--povrsina);
+  border: 1px solid var(--ivica);
+  border-radius: 6px;
+  padding: 1.25rem;
+}
+
+/* Greška u formi */
+.greska {
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+  border-left: 4px solid var(--crvena);
+  background: var(--greska-pozadina);
+  color: var(--crvena);
+  font-size: 0.9rem;
+}
+
+/* Prazna lista ("Nemate rezervacija") */
+.prazno {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--tekst-blago);
+  border: 1px dashed var(--ivica);
+  border-radius: 6px;
+}
+
+/* Male oznake statusa, npr. "Otkazan", "Popunjen" */
+.bedz {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+}
+
+.bedz-uspeh { color: var(--akcenat); background: var(--uspeh-pozadina); }
+.bedz-upozorenje { color: var(--zuta); background: var(--upozorenje-pozadina); }
+.bedz-opasno { color: var(--crvena); background: var(--greska-pozadina); }
+.bedz-neutralno { color: var(--tekst-blago); }
+
+/* =====================================================================
+   KARTICE ZA PREBACIVANJE (tabovi), npr. "Predstojeće" / "Prošle"
+   ===================================================================== */
+
+.tabovi {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--ivica);
+  margin-bottom: 1.25rem;
+}
+
+.tabovi button {
+  font: inherit;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: var(--tekst-blago);
+  cursor: pointer;
+}
+
+.tabovi button.aktivan {
+  color: var(--tinta);
+  font-weight: 600;
+  border-bottom-color: var(--akcenat);
+}
+
+/* =====================================================================
+   DIJALOG (mali prozor preko stranice, npr. potvrda otkazivanja)
+   ===================================================================== */
+
+.dijalog-pozadina {
+  position: fixed;
+  inset: 0;
+  background: var(--senka-dijaloga);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 50;
+}
+
+.dijalog {
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--povrsina);
+  border: 1px solid var(--ivica);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.dijalog h2 {
+  margin: 0 0 1rem;
+  font-size: 1.2rem;
+}
+
+/* Dugmad na dnu dijaloga ili forme, poravnata desno */
+.dugmad {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+/* Poštujemo podešavanje "smanji animacije" u sistemu */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* =====================================================================
+   KARTICA TERMINA (student i profesor)
+   [ list kalendara ] [ vreme, profesor, predmet, mesto ] [ status i dugmad ]
+   ===================================================================== */
+
+.lista-termina {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.termin-kartica {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  background: var(--povrsina);
+  border: 1px solid var(--ivica);
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.termin-kartica .detalji {
+  flex: 1;
+  min-width: 0;            /* da dugačak link za onlajn sastanak ne razvuče karticu */
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.termin-kartica .vreme {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.termin-kartica .sporedno {
+  color: var(--tekst-blago);
+  font-size: 0.92rem;
+  overflow-wrap: anywhere;
+}
+
+.termin-kartica .akcije-kartice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  text-align: right;
+}
+
+/* Telefon: status i dugmad idu ispod podataka, preko cele širine */
+@media (max-width: 600px) {
+  .termin-kartica {
+    flex-wrap: wrap;
+  }
+  .termin-kartica .akcije-kartice {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+/* Red sa filterima iznad liste */
+.filteri {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.75rem;
+  align-items: end;
+  margin-bottom: 1.25rem;
 }

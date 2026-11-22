@@ -1,0 +1,45 @@
+.poruke {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: min(380px, calc(100vw - 2rem));
+}
+
+.poruka {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid var(--akcenat);
+  border-left-width: 4px;
+  background: var(--povrsina);
+  color: var(--tekst);
+  animation: ulaz 0.2s ease-out;
+}
+
+.greska-poruka {
+  border-color: var(--crvena);
+}
+
+.poruka span {
+  flex: 1;
+}
+
+.poruka button {
+  font-size: 1.2rem;
+  line-height: 1;
+  border: none;
+  background: none;
+  color: var(--tekst-blago);
+  cursor: pointer;
+}
+
+@keyframes ulaz {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}

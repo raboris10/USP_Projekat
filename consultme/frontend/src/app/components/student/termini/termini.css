@@ -1,0 +1,15 @@
+.rezime {
+  margin: 0 0 1rem;
+  padding: 0.75rem;
+  border-radius: 6px;
+  background: var(--pozadina);
+  color: var(--tekst);
+}
+
+.polje small {
+  align-self: flex-end;
+}
+
+form .greska {
+  margin-top: 0.75rem;
+}

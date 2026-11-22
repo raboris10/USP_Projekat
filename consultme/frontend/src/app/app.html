@@ -1,1 +1,12 @@
-<router-outlet />
+@if (authService.jePrijavljen()) {
+  <!-- Prijavljen korisnik: zaglavlje sa menijem + stranica u okviru sadržaja -->
+  <app-zaglavlje />
+  <main class="sadrzaj">
+    <router-outlet />
+  </main>
+} @else {
+  <!-- Neprijavljen: samo stranica za prijavu, preko celog ekrana -->
+  <router-outlet />
+}
+
+<app-poruke />
