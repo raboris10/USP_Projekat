@@ -2,6 +2,7 @@ package rs.ac.singidunum.consultme.exception;
 
 import java.util.Map;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -26,6 +27,21 @@ public class GlobalExceptionHandler {
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public Map<String, String> handleNotFound(ResourceNotFoundException ex) {
 		return Map.of("poruka", ex.getMessage());
+	}
+
+	// 400 - zahtev krši pravilo aplikacije (npr. duplikat, brisanje podatka koji se koristi)
+	@ExceptionHandler(PoslovnaGreskaException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public Map<String, String> handlePoslovnaGreska(PoslovnaGreskaException ex) {
+		return Map.of("poruka", ex.getMessage());
+	}
+
+	// 409 - baza je odbila upis (npr. duplikat koji je "proleteo" pored provere u servisu).
+	// Ovo je zaštitna mreža; u normalnom radu servis uhvati grešku pre baze.
+	@ExceptionHandler(DataIntegrityViolationException.class)
+	@ResponseStatus(HttpStatus.CONFLICT)
+	public Map<String, String> handleDataIntegrity(DataIntegrityViolationException ex) {
+		return Map.of("poruka", "Podatak nije sačuvan jer krši ograničenja baze (duplikat ili je u upotrebi).");
 	}
 
 	// 400 - nije prošla validacija (@Valid), npr. prazan email.

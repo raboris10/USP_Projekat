@@ -4,8 +4,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import rs.ac.singidunum.consultme.model.Termin;
 
-// Osnovne CRUD metode (findAll, findById, save, delete) dobijamo automatski.
-// Ovde ćemo dodavati sopstvene upite kada nam zatrebaju.
 public interface TerminRepository extends JpaRepository<Termin, Long> {
+
+	// Da li za predmet postoji bar jedan termin (tada predmet ne sme da se obriše)
+	boolean existsByPredmetId(Long predmetId);
 
 }
