@@ -29,14 +29,8 @@ h1 {
 
 .podnaslov {
   font-size: 1.25rem;
-  margin: 0 0 1rem;
-  color: var(--tinta);
-}
-
-.opis {
-  max-width: 36ch;
-  color: var(--tekst-blago);
   margin: 0;
+  color: var(--tinta);
 }
 
 .kartica {
@@ -126,9 +120,6 @@ button:focus-visible {
   padding: 0.2rem 1rem 0.2rem 0;
 }
 
-.test-nalozi p {
-  margin: 0.5rem 0 0;
-}
 
 /* Prekidač teme u gornjem desnom uglu */
 .tema {
