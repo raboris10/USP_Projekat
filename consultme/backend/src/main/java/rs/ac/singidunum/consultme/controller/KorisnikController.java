@@ -19,12 +19,12 @@ public class KorisnikController {
 	}
 
 	// GET
-	// ruta: /api/korisnici/ja  (ZAŠTIĆENA - radi samo sa ispravnim tokenom)
+	// ruta: /api/korisnici/me  (ZAŠTIĆENA - radi samo sa ispravnim tokenom)
 	// Vraća podatke o trenutno prijavljenom korisniku.
 	// Spring sam prosleđuje "authentication" - to je objekat koji je JwtFilter napravio iz tokena,
 	// a getName() vraća email (subject iz tokena).
-	@GetMapping("/ja")
-	public KorisnikDto ja(Authentication authentication) {
+	@GetMapping("/me")
+	public KorisnikDto me(Authentication authentication) {
 		return korisnikService.findByEmail(authentication.getName());
 	}
 

@@ -51,11 +51,11 @@ export class AuthService {
     );
   }
 
-  // GET /api/korisnici/ja
+  // GET /api/korisnici/me
   // Zaštićena ruta - radi samo ako interceptor doda ispravan token.
   // Služi kao dokaz da backend prepoznaje token.
-  ja(): Observable<Korisnik> {
-    return this.http.get<Korisnik>(`${this.korisniciUrl}/ja`);
+  me(): Observable<Korisnik> {
+    return this.http.get<Korisnik>(`${this.korisniciUrl}/me`);
   }
 
   // Odjava - obriši sve iz browsera. Backend nema šta da briše (STATELESS, nema sesije).
