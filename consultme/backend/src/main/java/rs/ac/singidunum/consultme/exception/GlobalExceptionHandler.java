@@ -22,6 +22,13 @@ public class GlobalExceptionHandler {
 		return Map.of("poruka", ex.getMessage());
 	}
 
+	// 403 - korisnik dira tuđi podatak (npr. tuđi termin)
+	@ExceptionHandler(ZabranjenPristupException.class)
+	@ResponseStatus(HttpStatus.FORBIDDEN)
+	public Map<String, String> handleZabranjenPristup(ZabranjenPristupException ex) {
+		return Map.of("poruka", ex.getMessage());
+	}
+
 	// 404 - podatak ne postoji
 	@ExceptionHandler(ResourceNotFoundException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)

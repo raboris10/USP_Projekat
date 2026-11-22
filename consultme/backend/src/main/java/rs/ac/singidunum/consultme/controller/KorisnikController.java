@@ -1,5 +1,7 @@
 package rs.ac.singidunum.consultme.controller;
 
+import java.util.List;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +28,14 @@ public class KorisnikController {
 	@GetMapping("/me")
 	public KorisnikDto me(Authentication authentication) {
 		return korisnikService.findByEmail(authentication.getName());
+	}
+
+	// GET
+	// ruta: /api/korisnici/profesori  (svi prijavljeni)
+	// Lista profesora - student je koristi kao filter pri pretrazi termina.
+	@GetMapping("/profesori")
+	public List<KorisnikDto> profesori() {
+		return korisnikService.findProfesori();
 	}
 
 }
