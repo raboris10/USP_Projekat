@@ -9,3 +9,11 @@ export interface Predmet {
   katedraNaziv: string;
   profesori: Korisnik[];
 }
+
+// Telo zahteva za novi predmet / izmenu (PredmetRequest.java)
+export interface PredmetZahtev {
+  naziv: string;
+  sifra: string;
+  katedraId: number;
+  profesorIds: number[];
+}

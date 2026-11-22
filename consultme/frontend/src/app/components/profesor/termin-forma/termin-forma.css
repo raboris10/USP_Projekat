@@ -1,0 +1,44 @@
+.forma {
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Više polja u jednom redu; na telefonu jedno ispod drugog */
+.red-polja {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.ponavljanje {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--ivica);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.cekboks {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.sporedno,
+.polje small {
+  color: var(--tekst-blago);
+  font-size: 0.85rem;
+}
+
+.napomena {
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+  border-left: 4px solid var(--zuta);
+  background: var(--upozorenje-pozadina);
+  font-size: 0.9rem;
+}

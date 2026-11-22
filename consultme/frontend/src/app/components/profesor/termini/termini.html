@@ -1,0 +1,113 @@
+<div class="naslov-strane">
+  <h1>Moji termini</h1>
+  <a routerLink="/profesor/termini/novi" class="dugme">Novi termin</a>
+</div>
+
+<div class="tabovi" role="tablist">
+  <button type="button" role="tab" [class.aktivan]="tab() === 'predstojeci'"
+          [attr.aria-selected]="tab() === 'predstojeci'" (click)="tab.set('predstojeci')">
+    Predstojeći ({{ predstojeci().length }})
+  </button>
+  <button type="button" role="tab" [class.aktivan]="tab() === 'prosli'"
+          [attr.aria-selected]="tab() === 'prosli'" (click)="tab.set('prosli')">
+    Prošli ({{ prosli().length }})
+  </button>
+</div>
+
+@if (ucitavanje()) {
+  <p>Učitavanje...</p>
+} @else if (prikazani().length === 0) {
+  <p class="prazno">
+    @if (tab() === 'predstojeci') {
+      Nemate zakazanih termina. Dodajte prvi preko dugmeta "Novi termin".
+    } @else {
+      Još nemate prošlih termina.
+    }
+  </p>
+} @else {
+  <ul class="lista-termina">
+    @for (t of prikazani(); track t.id) {
+      <li class="termin-kartica">
+        <app-datum-blok [datum]="t.pocetak" [ugaseno]="t.status === 'OTKAZAN' || tab() === 'prosli'" />
+
+        <div class="detalji">
+          <span class="vreme">{{ t.pocetak | date: 'HH:mm' }} – {{ t.kraj | date: 'HH:mm' }}</span>
+          <span><strong>{{ t.predmetNaziv ?? 'Opšte konsultacije' }}</strong></span>
+          <span class="sporedno">
+            @if (jeLink(t.mesto)) {
+              Onlajn: <a [href]="t.mesto" target="_blank" rel="noopener">{{ t.mesto }}</a>
+            } @else {
+              {{ t.mesto }}
+            }
+          </span>
+          <span class="sporedno">Prijavljeno: {{ t.brojPrijavljenih }} od {{ t.kapacitet }}</span>
+
+          <!-- Lista prijavljenih se otvara ispod podataka o terminu -->
+          @if (otvorenTerminId() === t.id) {
+            <div class="prijavljeni">
+              @if (aktivniPrijavljeni(t.id); as lista) {
+                @if (lista.length === 0) {
+                  <p class="sporedno">Niko nije prijavljen.</p>
+                } @else {
+                  <ol>
+                    @for (p of lista; track p.rezervacijaId) {
+                      <li>
+                        <strong>{{ p.ime }} {{ p.prezime }}</strong>
+                        <a [href]="'mailto:' + p.email">{{ p.email }}</a>
+                        <span class="tema">{{ p.tema }}</span>
+                      </li>
+                    }
+                  </ol>
+                }
+              } @else {
+                <p class="sporedno">Učitavanje...</p>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="akcije-kartice">
+          @if (t.status === 'OTKAZAN') {
+            <span class="bedz bedz-opasno">Otkazan</span>
+          } @else if (t.slobodnihMesta === 0) {
+            <span class="bedz bedz-upozorenje">Popunjen</span>
+          }
+
+          <button type="button" class="dugme dugme-sekundarno dugme-malo" (click)="prikaziPrijavljene(t)"
+                  [attr.aria-expanded]="otvorenTerminId() === t.id">
+            {{ otvorenTerminId() === t.id ? 'Sakrij prijavljene' : 'Prijavljeni (' + t.brojPrijavljenih + ')' }}
+          </button>
+
+          @if (mozeDaSeMenja(t)) {
+            <a [routerLink]="['/profesor/termini', t.id, 'izmena']" class="dugme dugme-sekundarno dugme-malo">Izmeni</a>
+            <button type="button" class="dugme dugme-opasno dugme-malo" (click)="zaOtkazivanje.set(t)">Otkaži</button>
+          }
+        </div>
+      </li>
+    }
+  </ul>
+}
+
+<!-- Potvrda otkazivanja termina -->
+@if (zaOtkazivanje(); as t) {
+  <div class="dijalog-pozadina" (click)="zaOtkazivanje.set(null)">
+    <div class="dijalog" role="alertdialog" aria-modal="true" aria-labelledby="naslov-otkazivanja"
+         (click)="$event.stopPropagation()">
+      <h2 id="naslov-otkazivanja">Otkazati termin?</h2>
+      <p>
+        {{ t.pocetak | date: 'EEEE, d. MMMM, HH:mm' }}, {{ t.predmetNaziv ?? 'opšte konsultacije' }}.
+        @if (t.brojPrijavljenih > 0) {
+          Prijavljenih studenata: {{ t.brojPrijavljenih }}. Njihove rezervacije će biti otkazane i dobiće obaveštenje.
+        } @else {
+          Na termin još niko nije prijavljen.
+        }
+      </p>
+      <div class="dugmad">
+        <button type="button" class="dugme dugme-sekundarno" (click)="zaOtkazivanje.set(null)">Ne, zadrži</button>
+        <button type="button" class="dugme dugme-opasno" [disabled]="slanje()" (click)="potvrdiOtkazivanje()">
+          {{ slanje() ? 'Otkazivanje...' : 'Otkaži termin' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
