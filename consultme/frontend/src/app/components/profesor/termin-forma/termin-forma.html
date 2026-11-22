@@ -1,0 +1,87 @@
+<div class="naslov-strane">
+  <h1>{{ jeIzmena() ? 'Izmena termina' : 'Novi termin' }}</h1>
+</div>
+
+@if (ucitavanje()) {
+  <p>Učitavanje...</p>
+} @else {
+  <form class="kartica forma" (ngSubmit)="sacuvaj()">
+
+    <div class="red-polja">
+      <label class="polje">
+        Datum
+        <input type="date" name="datum" [(ngModel)]="datum" required />
+      </label>
+      <label class="polje">
+        Početak
+        <input type="time" name="vreme" [(ngModel)]="vreme" step="300" required />
+      </label>
+      <label class="polje">
+        Trajanje (minuta)
+        <input type="number" name="trajanjeMin" [(ngModel)]="trajanjeMin" min="10" max="240" step="5" required />
+      </label>
+    </div>
+
+    <label class="polje">
+      Mesto
+      <input type="text" name="mesto" [(ngModel)]="mesto" maxlength="255"
+             placeholder="Kabinet 305 ili link za onlajn sastanak" required />
+    </label>
+
+    <div class="red-polja">
+      <label class="polje">
+        Kapacitet (broj studenata)
+        <input type="number" name="kapacitet" [(ngModel)]="kapacitet" min="1" max="100" required />
+        @if (brojPrijavljenih() > 0) {
+          <small>Već prijavljeno: {{ brojPrijavljenih() }}</small>
+        }
+      </label>
+
+      <!-- Predmet se bira samo kod novog termina; kod izmene se samo prikazuje -->
+      <label class="polje">
+        Predmet
+        <select name="predmetId" [(ngModel)]="predmetId" [disabled]="jeIzmena()">
+          <option [ngValue]="null">Opšte konsultacije (bez predmeta)</option>
+          @for (p of mojiPredmeti(); track p.id) {
+            <option [ngValue]="p.id">{{ p.naziv }} ({{ p.sifra }})</option>
+          }
+        </select>
+        @if (jeIzmena()) {
+          <small>Predmet ne može da se menja. Za drugi predmet napravite novi termin.</small>
+        }
+      </label>
+    </div>
+
+    <!-- Ponavljanje: samo kod novog termina -->
+    @if (!jeIzmena()) {
+      <fieldset class="ponavljanje">
+        <label class="cekboks">
+          <input type="checkbox" name="ponavljaj" [(ngModel)]="ponavljaj" />
+          Ponavljaj svake nedelje u isto vreme
+        </label>
+        @if (ponavljaj) {
+          <label class="polje">
+            Do datuma (uključujući i taj dan)
+            <input type="date" name="ponavljanjeDo" [(ngModel)]="ponavljanjeDo" [min]="datum" />
+          </label>
+          <small class="sporedno">Svaki termin se kasnije može posebno izmeniti ili otkazati. Najviše 26 nedelja.</small>
+        }
+      </fieldset>
+    }
+
+    @if (jeIzmena() && brojPrijavljenih() > 0) {
+      <p class="napomena">Ako promenite datum, vreme, trajanje ili mesto, prijavljeni studenti dobijaju obaveštenje.</p>
+    }
+
+    @if (greska()) {
+      <p class="greska" role="alert">{{ greska() }}</p>
+    }
+
+    <div class="dugmad">
+      <a routerLink="/profesor/termini" class="dugme dugme-sekundarno">Odustani</a>
+      <button type="submit" class="dugme" [disabled]="slanje()">
+        {{ slanje() ? 'Čuvanje...' : (jeIzmena() ? 'Sačuvaj izmene' : 'Napravi termin') }}
+      </button>
+    </div>
+  </form>
+}

@@ -1,0 +1,32 @@
+.prijavljeni {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--ivica);
+}
+
+.prijavljeni p {
+  margin: 0;
+}
+
+.prijavljeni ol {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.prijavljeni li {
+  display: flex;
+  flex-direction: column;
+}
+
+.prijavljeni a {
+  font-size: 0.88rem;
+  overflow-wrap: anywhere;
+}
+
+.tema {
+  font-style: italic;
+  overflow-wrap: anywhere;
+}

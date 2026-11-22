@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { Home } from './components/home/home';
 import { Notifikacije } from './components/notifikacije/notifikacije';
+import { TerminForma } from './components/profesor/termin-forma/termin-forma';
+import { ProfesorTermini } from './components/profesor/termini/termini';
 import { StudentRezervacije } from './components/student/rezervacije/rezervacije';
 import { StudentTermini } from './components/student/termini/termini';
 import { UIzradi } from './components/u-izradi/u-izradi';
@@ -19,8 +21,9 @@ export const routes: Routes = [
   { path: 'student/rezervacije', component: StudentRezervacije, canActivate: [ulogaGuard('STUDENT')] },
 
   // Profesor
-  { path: 'profesor/termini', component: UIzradi, canActivate: [ulogaGuard('PROFESOR')], data: { naslov: 'Moji termini' } },
-  { path: 'profesor/termini/novi', component: UIzradi, canActivate: [ulogaGuard('PROFESOR')], data: { naslov: 'Novi termin' } },
+  { path: 'profesor/termini', component: ProfesorTermini, canActivate: [ulogaGuard('PROFESOR')] },
+  { path: 'profesor/termini/novi', component: TerminForma, canActivate: [ulogaGuard('PROFESOR')] },
+  { path: 'profesor/termini/:id/izmena', component: TerminForma, canActivate: [ulogaGuard('PROFESOR')] },
 
   // Admin
   { path: 'admin/korisnici', component: UIzradi, canActivate: [ulogaGuard('ADMIN')], data: { naslov: 'Korisnici' } },
