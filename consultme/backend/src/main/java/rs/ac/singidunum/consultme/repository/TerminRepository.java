@@ -2,11 +2,14 @@ package rs.ac.singidunum.consultme.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import jakarta.persistence.LockModeType;
 import rs.ac.singidunum.consultme.model.Termin;
 
 public interface TerminRepository extends JpaRepository<Termin, Long> {
@@ -54,5 +57,12 @@ public interface TerminRepository extends JpaRepository<Termin, Long> {
 			@Param("pocetak") LocalDateTime pocetak,
 			@Param("kraj") LocalDateTime kraj,
 			@Param("izuzetiId") Long izuzetiId);
+
+	// Učitava termin i ZAKLJUČAVA njegov red u bazi do kraja transakcije (SELECT ... FOR UPDATE).
+	// Ako dva studenta u istom trenutku rezervišu poslednje mesto, drugi čeka da prvi završi,
+	// pa tek onda broji slobodna mesta - i vidi da ih više nema.
+	@Lock(LockModeType.PESSIMISTIC_WRITE)
+	@Query("select t from Termin t where t.id = :id")
+	Optional<Termin> zakljucajZaRezervaciju(@Param("id") Long id);
 
 }

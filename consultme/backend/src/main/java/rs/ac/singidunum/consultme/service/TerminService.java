@@ -36,7 +36,8 @@ public class TerminService {
 	private static final int NAJVISE_PONAVLJANJA = 26;
 
 	// Kako se datum i vreme ispisuju u porukama, npr. "01.12.2026. u 12:00"
-	private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy. 'u' HH:mm");
+	// public -> koristi ga i RezervacijaService, da poruke izgledaju isto
+	public static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy. 'u' HH:mm");
 
 	private final TerminRepository terminRepository;
 	private final RezervacijaRepository rezervacijaRepository;
@@ -289,7 +290,8 @@ public class TerminService {
 	}
 
 	// Kratak opis za poruke, npr. "USP, prof. Zoran Zoranić" ili "opšte, prof. Nikola Nikolić"
-	private String opisTermina(Termin termin) {
+	// public static -> koristi ga i RezervacijaService
+	public static String opisTermina(Termin termin) {
 		String predmet = termin.getPredmet() != null ? termin.getPredmet().getSifra() : "opšte";
 		return predmet + ", prof. " + termin.getProfesor().getIme() + " " + termin.getProfesor().getPrezime();
 	}
