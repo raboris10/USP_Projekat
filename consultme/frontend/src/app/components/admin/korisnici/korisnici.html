@@ -1,0 +1,159 @@
+<div class="naslov-strane">
+  <h1>Korisnici</h1>
+  <button type="button" class="dugme" (click)="otvoriFormu(null)">Dodaj korisnika</button>
+</div>
+
+<div class="filteri">
+  <label class="polje">
+    Uloga
+    <select [(ngModel)]="uloga" (ngModelChange)="ucitaj()">
+      <option [ngValue]="null">Sve uloge</option>
+      <option value="STUDENT">Studenti</option>
+      <option value="PROFESOR">Profesori</option>
+      <option value="ADMIN">Administratori</option>
+    </select>
+  </label>
+  <label class="polje">
+    Pretraga
+    <input type="search" [(ngModel)]="pretraga" (ngModelChange)="pretragaPromenjena()"
+           placeholder="Ime, prezime ili email" />
+  </label>
+</div>
+
+@if (ucitavanje()) {
+  <p>Učitavanje...</p>
+} @else if (korisnici().length === 0) {
+  <p class="prazno">Nema korisnika za izabrane filtere.</p>
+} @else {
+  <div class="omotac-tabele">
+    <table class="tabela">
+      <thead>
+        <tr>
+          <th>Ime i prezime</th>
+          <th>Email</th>
+          <th>Uloga</th>
+          <th>Status</th>
+          <th><span class="vizuelno-skriveno">Akcije</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (k of korisnici(); track k.id) {
+          <tr [class.ugaseno]="!k.aktivan">
+            <td><strong>{{ k.ime }} {{ k.prezime }}</strong></td>
+            <td>{{ k.email }}</td>
+            <td>{{ nazivUloge(k.uloga) }}</td>
+            <td>
+              @if (k.aktivan) {
+                <span class="bedz bedz-uspeh">Aktivan</span>
+              } @else {
+                <span class="bedz bedz-neutralno">Deaktiviran</span>
+              }
+            </td>
+            <td>
+              <div class="akcije">
+                <button type="button" class="dugme dugme-sekundarno dugme-malo" (click)="otvoriFormu(k)">Izmeni</button>
+                <button type="button" class="dugme dugme-sekundarno dugme-malo" (click)="otvoriLozinku(k)">Lozinka</button>
+                @if (k.aktivan) {
+                  <button type="button" class="dugme dugme-opasno dugme-malo" [disabled]="jeSam(k)"
+                          [title]="jeSam(k) ? 'Ne možete deaktivirati sopstveni nalog' : ''"
+                          (click)="otvoriDeaktivaciju(k)">Deaktiviraj</button>
+                } @else {
+                  <button type="button" class="dugme dugme-sekundarno dugme-malo" (click)="aktiviraj(k)">Aktiviraj</button>
+                }
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+
+<!-- ===== Dijalozi ===== -->
+@if (dijalog()) {
+  <div class="dijalog-pozadina" (click)="zatvori()">
+    <div class="dijalog" role="dialog" aria-modal="true" aria-labelledby="naslov-dijaloga"
+         (click)="$event.stopPropagation()">
+
+      <!-- Dodavanje / izmena korisnika -->
+      @if (dijalog() === 'forma') {
+        <h2 id="naslov-dijaloga">{{ izabrani() ? 'Izmena korisnika' : 'Novi korisnik' }}</h2>
+        <form class="forma-dijaloga" (ngSubmit)="sacuvajKorisnika()">
+          <label class="polje">Ime
+            <input type="text" name="ime" [(ngModel)]="ime" maxlength="50" />
+          </label>
+          <label class="polje">Prezime
+            <input type="text" name="prezime" [(ngModel)]="prezime" maxlength="50" />
+          </label>
+          <label class="polje">Email
+            <input type="email" name="email" [(ngModel)]="email" maxlength="100" placeholder="ime.prezime&#64;fakultet.rs" />
+          </label>
+          <label class="polje">Uloga
+            <select name="uloga" [(ngModel)]="ulogaForme" [disabled]="!!izabrani() && jeSam(izabrani()!)">
+              <option value="STUDENT">Student</option>
+              <option value="PROFESOR">Profesor</option>
+              <option value="ADMIN">Administrator</option>
+            </select>
+          </label>
+          @if (!izabrani()) {
+            <label class="polje">Početna lozinka
+              <input type="text" name="lozinka" [(ngModel)]="lozinka" maxlength="72" autocomplete="off" />
+              <small>Najmanje 6 znakova. Saopštite je korisniku.</small>
+            </label>
+          }
+          @if (greskaDijaloga()) {
+            <p class="greska" role="alert">{{ greskaDijaloga() }}</p>
+          }
+          <div class="dugmad">
+            <button type="button" class="dugme dugme-sekundarno" (click)="zatvori()">Odustani</button>
+            <button type="submit" class="dugme" [disabled]="slanje()">
+              {{ izabrani() ? 'Sačuvaj izmene' : 'Dodaj korisnika' }}
+            </button>
+          </div>
+        </form>
+      }
+
+      <!-- Reset lozinke -->
+      @if (dijalog() === 'lozinka') {
+        <h2 id="naslov-dijaloga">Nova lozinka</h2>
+        <form class="forma-dijaloga" (ngSubmit)="sacuvajLozinku()">
+          <p>Za korisnika {{ izabrani()?.ime }} {{ izabrani()?.prezime }} ({{ izabrani()?.email }}).</p>
+          <label class="polje">Nova lozinka
+            <input type="text" name="lozinka" [(ngModel)]="lozinka" maxlength="72" autocomplete="off" />
+            <small>Najmanje 6 znakova. Saopštite je korisniku.</small>
+          </label>
+          @if (greskaDijaloga()) {
+            <p class="greska" role="alert">{{ greskaDijaloga() }}</p>
+          }
+          <div class="dugmad">
+            <button type="button" class="dugme dugme-sekundarno" (click)="zatvori()">Odustani</button>
+            <button type="submit" class="dugme" [disabled]="slanje()">Promeni lozinku</button>
+          </div>
+        </form>
+      }
+
+      <!-- Deaktivacija -->
+      @if (dijalog() === 'deaktivacija') {
+        <h2 id="naslov-dijaloga">Deaktivirati nalog?</h2>
+        <p>
+          {{ izabrani()?.ime }} {{ izabrani()?.prezime }} više neće moći da se prijavi.
+          @if (izabrani()?.uloga === 'STUDENT') {
+            Njegove buduće rezervacije biće otkazane, a profesori obavešteni.
+          }
+          @if (izabrani()?.uloga === 'PROFESOR') {
+            Profesor koji ima zakazane buduće termine ne može da se deaktivira dok se termini ne otkažu.
+          }
+          Nalog se kasnije može ponovo aktivirati.
+        </p>
+        @if (greskaDijaloga()) {
+          <p class="greska" role="alert">{{ greskaDijaloga() }}</p>
+        }
+        <div class="dugmad">
+          <button type="button" class="dugme dugme-sekundarno" (click)="zatvori()">Odustani</button>
+          <button type="button" class="dugme dugme-opasno" [disabled]="slanje()" (click)="potvrdiDeaktivaciju()">Deaktiviraj</button>
+        </div>
+      }
+
+    </div>
+  </div>
+}

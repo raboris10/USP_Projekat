@@ -1,15 +1,16 @@
 import { Routes } from '@angular/router';
+import { AdminKatedre } from './components/admin/katedre/katedre';
+import { AdminKorisnici } from './components/admin/korisnici/korisnici';
+import { AdminPredmeti } from './components/admin/predmeti/predmeti';
 import { Home } from './components/home/home';
 import { Notifikacije } from './components/notifikacije/notifikacije';
 import { TerminForma } from './components/profesor/termin-forma/termin-forma';
 import { ProfesorTermini } from './components/profesor/termini/termini';
 import { StudentRezervacije } from './components/student/rezervacije/rezervacije';
 import { StudentTermini } from './components/student/termini/termini';
-import { UIzradi } from './components/u-izradi/u-izradi';
 import { authGuard } from './guards/auth-guard';
 import { ulogaGuard } from './guards/uloga-guard';
 
-// UIzradi je privremena stranica; zamenjuje se pravim stranicama u sledećim koracima.
 export const routes: Routes = [
   { path: '', component: Home },                                                    // prijava
 
@@ -26,9 +27,9 @@ export const routes: Routes = [
   { path: 'profesor/termini/:id/izmena', component: TerminForma, canActivate: [ulogaGuard('PROFESOR')] },
 
   // Admin
-  { path: 'admin/korisnici', component: UIzradi, canActivate: [ulogaGuard('ADMIN')], data: { naslov: 'Korisnici' } },
-  { path: 'admin/katedre', component: UIzradi, canActivate: [ulogaGuard('ADMIN')], data: { naslov: 'Katedre' } },
-  { path: 'admin/predmeti', component: UIzradi, canActivate: [ulogaGuard('ADMIN')], data: { naslov: 'Predmeti' } },
+  { path: 'admin/korisnici', component: AdminKorisnici, canActivate: [ulogaGuard('ADMIN')] },
+  { path: 'admin/katedre', component: AdminKatedre, canActivate: [ulogaGuard('ADMIN')] },
+  { path: 'admin/predmeti', component: AdminPredmeti, canActivate: [ulogaGuard('ADMIN')] },
 
   { path: '**', redirectTo: '' }                                                    // nepoznato -> početna
 ];

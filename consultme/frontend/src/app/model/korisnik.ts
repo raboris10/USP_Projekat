@@ -23,3 +23,23 @@ export interface PrijavljeniKorisnik {
   prezime: string;
   uloga: string;
 }
+
+// Korisnik kako ga vidi administrator (KorisnikAdminDto.java)
+export interface KorisnikAdmin {
+  id: number;
+  ime: string;
+  prezime: string;
+  email: string;
+  uloga: string;      // STUDENT, PROFESOR ili ADMIN
+  aktivan: boolean;
+}
+
+// Telo zahteva za novog korisnika / izmenu (KorisnikRequest / KorisnikIzmenaRequest.java)
+// lozinka se šalje samo kod novog korisnika
+export interface KorisnikZahtev {
+  ime: string;
+  prezime: string;
+  email: string;
+  uloga: string;
+  lozinka?: string;
+}

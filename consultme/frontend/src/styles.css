@@ -380,3 +380,76 @@ input[type="radio"] {
   align-items: end;
   margin-bottom: 1.25rem;
 }
+
+/* =====================================================================
+   TABELE (admin)
+   Na uskom ekranu tabela se pomera levo-desno unutar omotača,
+   umesto da razvuče celu stranicu.
+   ===================================================================== */
+
+.omotac-tabele {
+  overflow-x: auto;
+  background: var(--povrsina);
+  border: 1px solid var(--ivica);
+  border-radius: 6px;
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.tabela th,
+.tabela td {
+  padding: 0.65rem 0.9rem;
+  text-align: left;
+  border-bottom: 1px solid var(--ivica);
+  vertical-align: middle;
+}
+
+.tabela th {
+  font-weight: 600;
+  color: var(--tekst-blago);
+  background: var(--pozadina);
+  white-space: nowrap;
+}
+
+.tabela tr:last-child td {
+  border-bottom: none;
+}
+
+/* Red deaktiviranog korisnika */
+.tabela tr.ugaseno td {
+  color: var(--tekst-blago);
+}
+
+/* Dugmad u poslednjoj koloni */
+.tabela .akcije {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: flex-end;
+}
+
+/* Forma u dijalogu: polja jedno ispod drugog */
+.forma-dijaloga {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+/* Tekst koji čitači ekrana čitaju, ali se ne vidi (npr. naslov kolone sa dugmadima) */
+.vizuelno-skriveno {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.polje small {
+  color: var(--tekst-blago);
+  font-size: 0.85rem;
+}

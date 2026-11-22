@@ -1,0 +1,74 @@
+<div class="naslov-strane">
+  <h1>Katedre</h1>
+  <button type="button" class="dugme" (click)="otvoriFormu(null)">Dodaj katedru</button>
+</div>
+
+@if (ucitavanje()) {
+  <p>Učitavanje...</p>
+} @else if (katedre().length === 0) {
+  <p class="prazno">Nema katedri. Dodajte prvu preko dugmeta "Dodaj katedru".</p>
+} @else {
+  <div class="omotac-tabele">
+    <table class="tabela">
+      <thead>
+        <tr>
+          <th>Naziv</th>
+          <th><span class="vizuelno-skriveno">Akcije</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (k of katedre(); track k.id) {
+          <tr>
+            <td>{{ k.naziv }}</td>
+            <td>
+              <div class="akcije">
+                <button type="button" class="dugme dugme-sekundarno dugme-malo" (click)="otvoriFormu(k)">Izmeni</button>
+                <button type="button" class="dugme dugme-opasno dugme-malo" (click)="otvoriBrisanje(k)">Obriši</button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+
+@if (dijalog()) {
+  <div class="dijalog-pozadina" (click)="zatvori()">
+    <div class="dijalog" role="dialog" aria-modal="true" aria-labelledby="naslov-dijaloga"
+         (click)="$event.stopPropagation()">
+
+      @if (dijalog() === 'forma') {
+        <h2 id="naslov-dijaloga">{{ izabrana() ? 'Izmena katedre' : 'Nova katedra' }}</h2>
+        <form class="forma-dijaloga" (ngSubmit)="sacuvaj()">
+          <label class="polje">Naziv
+            <input type="text" name="naziv" [(ngModel)]="naziv" maxlength="150"
+                   placeholder="Npr. Katedra za informatiku i računarstvo" />
+          </label>
+          @if (greskaDijaloga()) {
+            <p class="greska" role="alert">{{ greskaDijaloga() }}</p>
+          }
+          <div class="dugmad">
+            <button type="button" class="dugme dugme-sekundarno" (click)="zatvori()">Odustani</button>
+            <button type="submit" class="dugme" [disabled]="slanje()">
+              {{ izabrana() ? 'Sačuvaj izmene' : 'Dodaj katedru' }}
+            </button>
+          </div>
+        </form>
+      }
+
+      @if (dijalog() === 'brisanje') {
+        <h2 id="naslov-dijaloga">Obrisati katedru?</h2>
+        <p>{{ izabrana()?.naziv }}. Katedra koja ima predmete ne može da se obriše.</p>
+        @if (greskaDijaloga()) {
+          <p class="greska" role="alert">{{ greskaDijaloga() }}</p>
+        }
+        <div class="dugmad">
+          <button type="button" class="dugme dugme-sekundarno" (click)="zatvori()">Odustani</button>
+          <button type="button" class="dugme dugme-opasno" [disabled]="slanje()" (click)="potvrdiBrisanje()">Obriši</button>
+        </div>
+      }
+
+    </div>
+  </div>
+}
