@@ -15,6 +15,7 @@ services:
       MYSQL_DATABASE: ${DB_NAME}     # pravi bazu pri prvom pokretanju
       MYSQL_USER: ${DB_USER}         # i korisnika sa pristupom toj bazi
       MYSQL_PASSWORD: ${DB_PASSWORD}
+      TZ: Europe/Belgrade            # vremenska zona (CURDATE, NOW u bazi)
 
     ports:
       - "${DB_HOST_PORT}:3306"       # vaš računar : kontejner (za DBeaver)
@@ -49,6 +50,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_TRAJANJE_MINUTA: ${JWT_TRAJANJE_MINUTA}
+      TZ: Europe/Belgrade            # vremenska zona (LocalDateTime.now() u Javi)
 
     ports:
       - "${BACKEND_HOST_PORT}:8080"  # za Swagger iz browsera

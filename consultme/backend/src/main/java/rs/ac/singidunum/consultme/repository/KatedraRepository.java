@@ -4,8 +4,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import rs.ac.singidunum.consultme.model.Katedra;
 
-// Osnovne CRUD metode (findAll, findById, save, delete) dobijamo automatski.
-// Ovde ćemo dodavati sopstvene upite kada nam zatrebaju.
 public interface KatedraRepository extends JpaRepository<Katedra, Long> {
+
+	// Da li već postoji katedra sa ovim nazivom (bez obzira na velika/mala slova)
+	boolean existsByNazivIgnoreCase(String naziv);
+
+	// Isto, ali ne računajući katedru koju menjamo (za izmenu)
+	boolean existsByNazivIgnoreCaseAndIdNot(String naziv, Long id);
 
 }

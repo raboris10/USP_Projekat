@@ -2,6 +2,7 @@ package rs.ac.singidunum.consultme.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -10,18 +11,27 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import rs.ac.singidunum.consultme.repository.KorisnikRepository;
 import rs.ac.singidunum.consultme.security.JwtFilter;
 import rs.ac.singidunum.consultme.security.JwtService;
 
 // Glavna podešavanja bezbednosti: ko sme na koju rutu i kako se proverava prijava.
 // @Configuration -> klasa sa podešavanjima; @Bean metode prave objekte koje Spring koristi.
+//
+// @EnableMethodSecurity -> uključuje @PreAuthorize nad metodama kontrolera.
+// Tako svaka ruta sama kaže koja uloga sme da je pozove, npr:
+//   @PreAuthorize("hasRole('PROFESOR')")
+// i pravila stoje tačno pored koda na koji se odnose (a ne sva na jednom mestu ovde).
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
 	private final JwtService jwtService;
+	private final KorisnikRepository korisnikRepository;
 
-	public SecurityConfig(JwtService jwtService) {
+	public SecurityConfig(JwtService jwtService, KorisnikRepository korisnikRepository) {
 		this.jwtService = jwtService;
+		this.korisnikRepository = korisnikRepository;
 	}
 
 	@Bean
@@ -47,11 +57,8 @@ public class SecurityConfig {
 				// Spring-ova stranica za greške
 				.requestMatchers("/error").permitAll()
 
-				// PRIMERI za kasnije (pravila po ulogama):
-				// .requestMatchers("/api/admin/**").hasRole("ADMIN")
-				// .requestMatchers(HttpMethod.POST, "/api/termini/**").hasRole("PROFESOR")
-
-				// sve ostalo traži prijavljenog korisnika (ispravan token)
+				// sve ostalo traži prijavljenog korisnika (ispravan token).
+				// KOJA uloga sme na koju rutu piše se u kontroleru preko @PreAuthorize.
 				.anyRequest().authenticated())
 
 			// Šta se vraća kad nešto nije dozvoljeno (JSON, kao i ostale greške)
@@ -70,7 +77,7 @@ public class SecurityConfig {
 				}))
 
 			// Naš JwtFilter se izvršava pre Spring-ovog filtera za prijavu
-			.addFilterBefore(new JwtFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
+			.addFilterBefore(new JwtFilter(jwtService, korisnikRepository), UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}

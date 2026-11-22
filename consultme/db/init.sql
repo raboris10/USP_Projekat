@@ -95,6 +95,22 @@ CREATE TABLE rezervacija (
     FOREIGN KEY (termin_id)  REFERENCES termin(id)
 );
 
+-- ---------------------------------------------------------------------
+-- NOTIFIKACIJA - obaveštenje za jednog korisnika (studenta ili profesora)
+-- Za sada se prikazuje samo u aplikaciji; kasnije isti zapis postaje i mejl.
+-- ---------------------------------------------------------------------
+CREATE TABLE notifikacija (
+    id           BIGINT AUTO_INCREMENT PRIMARY KEY,
+    primalac_id  BIGINT       NOT NULL,                  -- kome je namenjena
+    tip          VARCHAR(40)  NOT NULL,                  -- vrsta (enum TipNotifikacije)
+    poruka       VARCHAR(500) NOT NULL,                  -- tekst koji korisnik vidi
+    termin_id    BIGINT       NULL,                      -- na koji termin se odnosi (ako se odnosi)
+    procitana    BOOLEAN      NOT NULL DEFAULT FALSE,    -- za "zvonce" sa brojem nepročitanih
+    kreirana     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (primalac_id) REFERENCES korisnik(id),
+    FOREIGN KEY (termin_id)   REFERENCES termin(id)
+);
+
 
 -- =====================================================================
 -- POČETNI PODACI
@@ -161,3 +177,16 @@ INSERT INTO rezervacija (student_id, termin_id, tema) VALUES
 (7, 1, 'Pitanja o projektnoj dokumentaciji'),   -- Ana kod Zorana
 (8, 1, 'Gantov dijagram i kontrolne tačke'),    -- Bora kod Zorana
 (9, 2, 'Povezivanje Angulara sa backendom');    -- Ceca kod Maje
+
+-- ---------------------------------------------------------------------
+-- Notifikacije za postojeće rezervacije (da frontend ima šta da prikaže)
+-- ---------------------------------------------------------------------
+INSERT INTO notifikacija (primalac_id, tip, poruka, termin_id) VALUES
+-- studenti: potvrda rezervacije
+(7, 'REZERVACIJA_POTVRDJENA', 'Rezervisali ste termin kod prof. Zorana Zoranića (USP).', 1),
+(8, 'REZERVACIJA_POTVRDJENA', 'Rezervisali ste termin kod prof. Zorana Zoranića (USP).', 1),
+(9, 'REZERVACIJA_POTVRDJENA', 'Rezervisali ste termin kod prof. Maje Majić (VP).', 2),
+-- profesori: nova rezervacija
+(4, 'NOVA_REZERVACIJA', 'Ana Anić je rezervisala Vaš termin (USP).', 1),
+(4, 'NOVA_REZERVACIJA', 'Bora Borić je rezervisao Vaš termin (USP).', 1),
+(5, 'NOVA_REZERVACIJA', 'Ceca Cecić je rezervisala Vaš termin (VP).', 2);

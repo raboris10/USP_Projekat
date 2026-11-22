@@ -14,18 +14,26 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import rs.ac.singidunum.consultme.model.Korisnik;
+import rs.ac.singidunum.consultme.repository.KorisnikRepository;
 
 // Filter se izvršava za SVAKI zahtev, PRE nego što zahtev stigne do kontrolera.
 // Zadatak: ako zahtev ima ispravan JWT token, "prijavi" korisnika za taj jedan zahtev.
 //
 // Zahtev sa tokenom ima zaglavlje:
 //   Authorization: Bearer eyJhbGciOiJIUzI1NiJ9....
+//
+// Pored provere tokena, filter proverava i BAZU: da li korisnik i dalje postoji i da li je aktivan.
+// Tako deaktivirani korisnik odmah gubi pristup (ne čeka da mu token istekne),
+// a promena uloge važi odmah (uloga se čita iz baze, ne iz tokena).
 public class JwtFilter extends OncePerRequestFilter {
 
 	private final JwtService jwtService;
+	private final KorisnikRepository korisnikRepository;
 
-	public JwtFilter(JwtService jwtService) {
+	public JwtFilter(JwtService jwtService, KorisnikRepository korisnikRepository) {
 		this.jwtService = jwtService;
+		this.korisnikRepository = korisnikRepository;
 	}
 
 	@Override
@@ -40,21 +48,27 @@ public class JwtFilter extends OncePerRequestFilter {
 			String token = zaglavlje.substring(7);
 
 			try {
-				// 3) Proveri token i pročitaj email i ulogu iz njega
+				// 3) Proveri token (potpis i rok) i pročitaj email iz njega
 				Claims sadrzaj = jwtService.procitajToken(token);
 				String email = sadrzaj.getSubject();
-				String uloga = sadrzaj.get("uloga", String.class);
 
-				// 4) Napravi objekat "prijavljeni korisnik" za Spring Security.
-				//    Prefiks ROLE_ je Spring-ova konvencija: hasRole("ADMIN") traži "ROLE_ADMIN".
-				UsernamePasswordAuthenticationToken prijava = new UsernamePasswordAuthenticationToken(
-						email,                                               // ko je (principal)
-						null,                                                // lozinka nam ovde ne treba
-						List.of(new SimpleGrantedAuthority("ROLE_" + uloga)) // šta sme
-				);
+				// 3a) Korisnik mora i dalje da postoji i da bude aktivan.
+				//     Ako nije -> ne prijavljujemo ga, pa zaštićene rute vraćaju 401.
+				Korisnik korisnik = korisnikRepository.findByEmail(email).orElse(null);
 
-				// 5) Sačuvaj ga - od sada Spring zna ko šalje ovaj zahtev
-				SecurityContextHolder.getContext().setAuthentication(prijava);
+				if (korisnik != null && korisnik.getAktivan()) {
+					// 4) Napravi objekat "prijavljeni korisnik" za Spring Security.
+					//    Uloga se čita iz BAZE (ne iz tokena), pa promena uloge važi odmah.
+					//    Prefiks ROLE_ je Spring-ova konvencija: hasRole("ADMIN") traži "ROLE_ADMIN".
+					UsernamePasswordAuthenticationToken prijava = new UsernamePasswordAuthenticationToken(
+							email,                                                                  // ko je (principal)
+							null,                                                                   // lozinka nam ovde ne treba
+							List.of(new SimpleGrantedAuthority("ROLE_" + korisnik.getUloga().name())) // šta sme
+					);
+
+					// 5) Sačuvaj ga - od sada Spring zna ko šalje ovaj zahtev
+					SecurityContextHolder.getContext().setAuthentication(prijava);
+				}
 
 			} catch (JwtException | IllegalArgumentException e) {
 				// Token je neispravan ili istekao -> korisnik ostaje neprijavljen.
