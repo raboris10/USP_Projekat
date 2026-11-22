@@ -1,173 +1,163 @@
 -- =====================================================================
--- ConsultMe: kreiranje baze, tabela i pocetnih podataka (MySQL 8)
--- DBeaver: otvori SQL editor, nalepi skriptu i pokreni kao skriptu (Alt+X)
--- Tabele odgovaraju entitetima iz Spring Boot projekta (ddl-auto=update ih nece menjati).
+-- ConsultMe - početna skripta baze
+-- =====================================================================
+-- Izvršava se SAMO pri prvom pokretanju baze (kada je volumen prazan).
+-- Ako je izmenite, bazu resetujete sa:
+--   docker compose down -v
+--   docker compose up --build
+-- Baza consultme_db je već napravljena preko MYSQL_DATABASE iz .env fajla,
+-- pa ovde nema CREATE DATABASE.
 -- =====================================================================
 
-CREATE DATABASE IF NOT EXISTS consultme
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
+-- Da bi slova š, č, ć, ž, đ ispravno ušla u bazu
+SET NAMES utf8mb4;
 
-USE consultme;
 
--- Brisanje starih tabela (redosled zbog stranih kljuceva). OBRISACE SVE PODATKE!
-SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS evidencija;
-DROP TABLE IF EXISTS notifikacija;
-DROP TABLE IF EXISTS rezervacija;
-DROP TABLE IF EXISTS termin_predmet;
-DROP TABLE IF EXISTS termin;
-DROP TABLE IF EXISTS predmet;
-DROP TABLE IF EXISTS administrator;
-DROP TABLE IF EXISTS student;
-DROP TABLE IF EXISTS nastavnik;
-DROP TABLE IF EXISTS korisnik;
-DROP TABLE IF EXISTS katedra;
-SET FOREIGN_KEY_CHECKS = 1;
-
--- ---------------------------------------------------------------------
+-- =====================================================================
 -- TABELE
+-- Redosled je bitan: prvo tabele na koje drugi pokazuju (FOREIGN KEY).
+-- =====================================================================
+
 -- ---------------------------------------------------------------------
-
-CREATE TABLE katedra (
-    id    BIGINT       NOT NULL AUTO_INCREMENT,
-    naziv VARCHAR(255) NOT NULL,
-    PRIMARY KEY (id)
-) ENGINE = InnoDB;
-
--- Korisnik je apstraktna klasa (JOINED nasledjivanje): zajednicka polja su ovde,
--- a polja podklasa u tabelama student, nastavnik i administrator.
+-- KORISNIK - jedna tabela za sve tri uloge (student, profesor, admin)
+-- ---------------------------------------------------------------------
 CREATE TABLE korisnik (
-    id      BIGINT       NOT NULL AUTO_INCREMENT,
-    ime     VARCHAR(255) NOT NULL,
-    prezime VARCHAR(255) NOT NULL,
-    email   VARCHAR(255) NOT NULL,
-    lozinka VARCHAR(255) NOT NULL,           -- BCrypt hash
-    PRIMARY KEY (id),
-    UNIQUE KEY uk_korisnik_email (email)
-) ENGINE = InnoDB;
+    id       BIGINT AUTO_INCREMENT PRIMARY KEY,  -- jedinstveni broj, baza ga sama dodeljuje
+    ime      VARCHAR(50)  NOT NULL,
+    prezime  VARCHAR(50)  NOT NULL,
+    email    VARCHAR(100) NOT NULL UNIQUE,       -- koristi se za prijavu, ne sme da se ponavlja
+    lozinka  VARCHAR(100) NOT NULL,              -- BCrypt HEŠ lozinke (nikad obična lozinka!)
+    uloga    VARCHAR(20)  NOT NULL,              -- STUDENT, PROFESOR ili ADMIN
+    aktivan  BOOLEAN      NOT NULL DEFAULT TRUE  -- neaktivan nalog ne može da se prijavi
+);
 
-CREATE TABLE administrator (
-    id BIGINT NOT NULL,
-    PRIMARY KEY (id),
-    CONSTRAINT fk_administrator_korisnik FOREIGN KEY (id) REFERENCES korisnik (id)
-) ENGINE = InnoDB;
+-- ---------------------------------------------------------------------
+-- KATEDRA
+-- ---------------------------------------------------------------------
+CREATE TABLE katedra (
+    id     BIGINT AUTO_INCREMENT PRIMARY KEY,
+    naziv  VARCHAR(150) NOT NULL UNIQUE
+);
 
-CREATE TABLE student (
-    id           BIGINT       NOT NULL,
-    broj_indeksa VARCHAR(255) NOT NULL,
-    PRIMARY KEY (id),
-    UNIQUE KEY uk_student_indeks (broj_indeksa),
-    CONSTRAINT fk_student_korisnik FOREIGN KEY (id) REFERENCES korisnik (id)
-) ENGINE = InnoDB;
-
-CREATE TABLE nastavnik (
-    id         BIGINT       NOT NULL,
-    zvanje     VARCHAR(255) NULL,
-    katedra_id BIGINT       NOT NULL,
-    PRIMARY KEY (id),
-    CONSTRAINT fk_nastavnik_korisnik FOREIGN KEY (id) REFERENCES korisnik (id),
-    CONSTRAINT fk_nastavnik_katedra  FOREIGN KEY (katedra_id) REFERENCES katedra (id)
-) ENGINE = InnoDB;
-
+-- ---------------------------------------------------------------------
+-- PREDMET - svaki predmet pripada jednoj katedri (veza N:1)
+-- ---------------------------------------------------------------------
 CREATE TABLE predmet (
-    id         BIGINT       NOT NULL AUTO_INCREMENT,
-    sifra      VARCHAR(255) NOT NULL,
-    naziv      VARCHAR(255) NOT NULL,
-    katedra_id BIGINT       NOT NULL,
-    PRIMARY KEY (id),
-    UNIQUE KEY uk_predmet_sifra (sifra),
-    CONSTRAINT fk_predmet_katedra FOREIGN KEY (katedra_id) REFERENCES katedra (id)
-) ENGINE = InnoDB;
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    naziv       VARCHAR(150) NOT NULL,
+    sifra       VARCHAR(20)  NOT NULL UNIQUE,    -- kratka oznaka predmeta, npr. USP
+    katedra_id  BIGINT       NOT NULL,
+    FOREIGN KEY (katedra_id) REFERENCES katedra(id)
+);
 
+-- ---------------------------------------------------------------------
+-- PROFESOR_PREDMET - pomoćna tabela za vezu više-prema-više (M:N):
+-- jedan profesor drži više predmeta, jedan predmet ima više profesora
+-- ---------------------------------------------------------------------
+CREATE TABLE profesor_predmet (
+    profesor_id  BIGINT NOT NULL,
+    predmet_id   BIGINT NOT NULL,
+    PRIMARY KEY (profesor_id, predmet_id),      -- isti par ne može da se upiše dva puta
+    FOREIGN KEY (profesor_id) REFERENCES korisnik(id),
+    FOREIGN KEY (predmet_id)  REFERENCES predmet(id)
+);
+
+-- ---------------------------------------------------------------------
+-- TERMIN - konsultacije jednog profesora
+-- Ponavljajući termini se čuvaju kao više pojedinačnih redova.
+-- ---------------------------------------------------------------------
 CREATE TABLE termin (
-    id          BIGINT       NOT NULL AUTO_INCREMENT,
-    pocetak     DATETIME(6)  NOT NULL,
-    kraj        DATETIME(6)  NOT NULL,
-    kapacitet   INT          NOT NULL,
-    mesto       VARCHAR(255) NOT NULL,
-    status      VARCHAR(255) NOT NULL,       -- OTVOREN, POPUNJEN, OTKAZAN
-    nastavnik_id BIGINT      NOT NULL,
-    PRIMARY KEY (id),
-    CONSTRAINT fk_termin_nastavnik FOREIGN KEY (nastavnik_id) REFERENCES nastavnik (id)
-) ENGINE = InnoDB;
+    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
+    profesor_id   BIGINT       NOT NULL,                  -- čiji je termin
+    predmet_id    BIGINT       NULL,                      -- opciono: konsultacije mogu biti i opšte
+    pocetak       DATETIME     NOT NULL,                  -- datum i vreme početka
+    trajanje_min  INT          NOT NULL,                  -- trajanje u minutima
+    mesto         VARCHAR(255) NOT NULL,                  -- kabinet ili link za onlajn sastanak
+    kapacitet     INT          NOT NULL,                  -- najveći broj studenata
+    status        VARCHAR(20)  NOT NULL DEFAULT 'AKTIVAN',-- AKTIVAN ili OTKAZAN
+    FOREIGN KEY (profesor_id) REFERENCES korisnik(id),
+    FOREIGN KEY (predmet_id)  REFERENCES predmet(id)
+);
 
-CREATE TABLE termin_predmet (
-    termin_id  BIGINT NOT NULL,
-    predmet_id BIGINT NOT NULL,
-    PRIMARY KEY (termin_id, predmet_id),
-    CONSTRAINT fk_tp_termin  FOREIGN KEY (termin_id)  REFERENCES termin (id),
-    CONSTRAINT fk_tp_predmet FOREIGN KEY (predmet_id) REFERENCES predmet (id)
-) ENGINE = InnoDB;
-
+-- ---------------------------------------------------------------------
+-- REZERVACIJA - veza studenta i termina
+-- ---------------------------------------------------------------------
 CREATE TABLE rezervacija (
-    id         BIGINT       NOT NULL AUTO_INCREMENT,
-    tema       VARCHAR(255) NULL,
-    status     VARCHAR(255) NOT NULL,        -- AKTIVNA, OTKAZANA
-    kreirana   DATETIME(6)  NOT NULL,
-    student_id BIGINT       NOT NULL,
-    termin_id  BIGINT       NOT NULL,
-    PRIMARY KEY (id),
-    CONSTRAINT fk_rezervacija_student FOREIGN KEY (student_id) REFERENCES student (id),
-    CONSTRAINT fk_rezervacija_termin  FOREIGN KEY (termin_id)  REFERENCES termin (id)
-) ENGINE = InnoDB;
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    student_id  BIGINT       NOT NULL,
+    termin_id   BIGINT       NOT NULL,
+    tema        VARCHAR(500) NOT NULL,                       -- šta student želi da pita
+    status      VARCHAR(20)  NOT NULL DEFAULT 'AKTIVNA',     -- AKTIVNA ili OTKAZANA
+    dolazak     VARCHAR(20)  NULL,                           -- prazno, DOSAO ili NIJE_DOSAO
+    kreirana    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (student_id, termin_id),                          -- student ne može dvaput isti termin
+    FOREIGN KEY (student_id) REFERENCES korisnik(id),
+    FOREIGN KEY (termin_id)  REFERENCES termin(id)
+);
 
-CREATE TABLE notifikacija (
-    id            BIGINT       NOT NULL AUTO_INCREMENT,
-    tip           VARCHAR(255) NOT NULL,     -- POTVRDA, PODSETNIK, OTKAZIVANJE, IZMENA
-    vreme_slanja  DATETIME(6)  NULL,
-    rezervacija_id BIGINT      NOT NULL,
-    PRIMARY KEY (id),
-    CONSTRAINT fk_notifikacija_rezervacija FOREIGN KEY (rezervacija_id) REFERENCES rezervacija (id)
-) ENGINE = InnoDB;
 
-CREATE TABLE evidencija (
-    id             BIGINT NOT NULL AUTO_INCREMENT,
-    dosao          BIT(1) NOT NULL,
-    rezervacija_id BIGINT NOT NULL,
-    PRIMARY KEY (id),
-    UNIQUE KEY uk_evidencija_rezervacija (rezervacija_id),
-    CONSTRAINT fk_evidencija_rezervacija FOREIGN KEY (rezervacija_id) REFERENCES rezervacija (id)
-) ENGINE = InnoDB;
+-- =====================================================================
+-- POČETNI PODACI
+-- =====================================================================
 
 -- ---------------------------------------------------------------------
--- POCETNI PODACI
--- Lozinke su BCrypt hesevi (ne mogu se upisati kao obican tekst):
---   admin@consultme.rs      -> admin123
---   nastavnici (oba)        -> nastavnik123
---   studenti (oba)          -> student123
+-- KORISNICI (lozinke važe samo za razvoj!)
+--
+-- Test nalozi - domen @consultme.rs:
+--   admin@consultme.rs     / admin123      ADMIN     (IT tehničar)
+--   profesor@consultme.rs  / profesor123   PROFESOR
+--   student@consultme.rs   / student123    STUDENT
+--
+-- "Fakultetski" nalozi - simulirani domen @fakultet.rs, svi sa lozinkom lozinka123:
+--   zoran.zoranic@fakultet.rs, maja.majic@fakultet.rs, nikola.nikolic@fakultet.rs   PROFESOR
+--   ana.anic@fakultet.rs, bora.boric@fakultet.rs, ceca.cecic@fakultet.rs            STUDENT
+--
+-- U koloni lozinka su BCrypt heševi tih lozinki (svaki heš je drugačiji,
+-- iako je lozinka ista - BCrypt svaki put dodaje nasumičnu "so").
 -- ---------------------------------------------------------------------
+INSERT INTO korisnik (id, ime, prezime, email, lozinka, uloga) VALUES
+-- test nalozi (domen @consultme.rs)
+(1, 'Ivan',  'Ilić',    'admin@consultme.rs',        '$2a$10$FcIGQzO6gf9oX8U4HY8dEunSvCyG/E4XMJ0iNJ/Zn6.qWwvFO102i', 'ADMIN'),
+(2, 'Petar', 'Petrović', 'profesor@consultme.rs',     '$2a$10$O6kKOAlLnf4B48kEkl2RfueZ6R.Ko.ODal92BMGG1fhACTAIq0WL.', 'PROFESOR'),
+(3, 'Sara',  'Sarić',   'student@consultme.rs',      '$2a$10$jDJ14hidXnomM3vvX1U/0uxjwn.fDgnBtdsyBa.17dqAG0Ws3YSFC', 'STUDENT'),
+-- profesori i studenti sa "fakultetskim" nalozima (simulirani domen @fakultet.rs)
+(4, 'Zoran', 'Zoranić', 'zoran.zoranic@fakultet.rs', '$2a$10$yoVkJR2tMq4xt4GzSjCL/ujCVw7fqcex2j.9.3s7DYtgZCZ5Gmj.C', 'PROFESOR'),
+(5, 'Maja',  'Majić',   'maja.majic@fakultet.rs',    '$2a$10$k9haPkesdtBpFu/xaT0KwOKoqbnwZZ3Y5lcItsvZWdoTD6OO7C7WO', 'PROFESOR'),
+(6, 'Nikola', 'Nikolić', 'nikola.nikolic@fakultet.rs', '$2a$10$CdPrFG0H9QSfJIOWZEget.HJIAXOld/Bc3bgzri4PngD7dqqzY/p6', 'PROFESOR'),
+(7, 'Ana',   'Anić',    'ana.anic@fakultet.rs',      '$2a$10$nm7oevmsVot3C8d27u4gn.Xkg7rgM0RbjkHTcUzbAra.T3HaxAmS.', 'STUDENT'),
+(8, 'Bora',  'Borić',   'bora.boric@fakultet.rs',    '$2a$10$5fTWV9da.I0mz6mFR5p6QeNTlfwluy6HCcC402enj0/K2CH5arZla', 'STUDENT'),
+(9, 'Ceca',  'Cecić',   'ceca.cecic@fakultet.rs',    '$2a$10$q1xq75paMYafpvggKEvvfebnC5MWdY7hkhCx84Q3nWLbPA/VqjRoK', 'STUDENT');
 
+-- ---------------------------------------------------------------------
+-- Jedna katedra i dva predmeta
+-- ---------------------------------------------------------------------
 INSERT INTO katedra (id, naziv) VALUES
-    (1, 'Katedra za racunarstvo');
+(1, 'Katedra za informatiku i računarstvo');
 
-INSERT INTO predmet (id, sifra, naziv, katedra_id) VALUES
-    (1, 'RI101', 'Objektno orijentisano programiranje', 1),
-    (2, 'RI102', 'Baze podataka', 1);
+INSERT INTO predmet (id, naziv, sifra, katedra_id) VALUES
+(1, 'Upravljanje softverskim projektom', 'USP', 1),
+(2, 'Veb programiranje',                 'VP',  1);
 
--- 1 administrator
-INSERT INTO korisnik (id, ime, prezime, email, lozinka) VALUES
-    (1, 'Admin', 'ConsultMe', 'admin@consultme.rs',
-     '$2a$10$vf/fD7jXluuk5tirBEfnouT/k3LaPQ6YGUe3q2Jr2eg1HV.M58XB2');
-INSERT INTO administrator (id) VALUES (1);
+-- Ko drži koji predmet (profesor_id, predmet_id)
+INSERT INTO profesor_predmet (profesor_id, predmet_id) VALUES
+(2, 1), (2, 2),   -- test profesor: oba predmeta
+(4, 1),           -- Zoran Zoranić: USP
+(5, 2),           -- Maja Majić: VP
+(6, 1), (6, 2);   -- Nikola Nikolić: oba predmeta
 
--- 2 nastavnika (profesora)
-INSERT INTO korisnik (id, ime, prezime, email, lozinka) VALUES
-    (2, 'Petar', 'Petrovic', 'petar.petrovic@consultme.rs',
-     '$2a$10$jQICDxvAdMDd6gYf9srJxuTVvRJy9u9zURk5gkuX85zH3Cq3aLSdm'),
-    (3, 'Jelena', 'Jovanovic', 'jelena.jovanovic@consultme.rs',
-     '$2a$10$jQICDxvAdMDd6gYf9srJxuTVvRJy9u9zURk5gkuX85zH3Cq3aLSdm');
-INSERT INTO nastavnik (id, zvanje, katedra_id) VALUES
-    (2, 'Redovni profesor', 1),
-    (3, 'Docent', 1);
+-- ---------------------------------------------------------------------
+-- Termini, računati od dana kada se baza napravi
+-- ---------------------------------------------------------------------
+INSERT INTO termin (id, profesor_id, predmet_id, pocetak, trajanje_min, mesto, kapacitet) VALUES
+(1, 4, 1,    TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 2 DAY), '12:00:00'), 60, 'Kabinet 305',                    5),  -- Zoran, USP
+(2, 5, 2,    TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 3 DAY), '10:00:00'), 45, 'Kabinet 210',                    3),  -- Maja, VP
+(3, 6, NULL, TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 4 DAY), '16:00:00'), 45, 'https://meet.example.com/nikolic', 10), -- Nikola, opšte, onlajn
+(4, 2, 1,    TIMESTAMP(DATE_ADD(CURDATE(), INTERVAL 5 DAY), '14:00:00'), 30, 'Kabinet 101',                    4);  -- test profesor
 
--- 2 studenta
-INSERT INTO korisnik (id, ime, prezime, email, lozinka) VALUES
-    (4, 'Marko', 'Markovic', 'marko.markovic@consultme.rs',
-     '$2a$10$6tc5Aq90IYPSsusx/kHmWuD4mIrKni6K27pHOv8LXWvZJuGrQebBi'),
-    (5, 'Ana', 'Anic', 'ana.anic@consultme.rs',
-     '$2a$10$6tc5Aq90IYPSsusx/kHmWuD4mIrKni6K27pHOv8LXWvZJuGrQebBi');
-INSERT INTO student (id, broj_indeksa) VALUES
-    (4, '123/2024'),
-    (5, '124/2024');
-
+-- ---------------------------------------------------------------------
+-- Rezervacije (student_id, termin_id, tema)
+-- ---------------------------------------------------------------------
+INSERT INTO rezervacija (student_id, termin_id, tema) VALUES
+(7, 1, 'Pitanja o projektnoj dokumentaciji'),   -- Ana kod Zorana
+(8, 1, 'Gantov dijagram i kontrolne tačke'),    -- Bora kod Zorana
+(9, 2, 'Povezivanje Angulara sa backendom');    -- Ceca kod Maje
