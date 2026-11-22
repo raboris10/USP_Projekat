@@ -1,0 +1,164 @@
+.zaglavlje {
+  background: var(--povrsina);
+  border-bottom: 1px solid var(--ivica);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.red {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  min-height: 60px;
+}
+
+.logo {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--tinta);
+  text-decoration: none;
+}
+
+.meni {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.meni > a,
+.zvonce {
+  color: var(--tekst-blago);
+  text-decoration: none;
+  padding: 1.1rem 0;
+  border-bottom: 3px solid transparent;
+}
+
+.meni > a.aktivan,
+.zvonce.aktivan {
+  color: var(--tinta);
+  font-weight: 600;
+  border-bottom-color: var(--akcenat);
+}
+
+.desno {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.zvonce {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.broj {
+  position: absolute;
+  top: 0.55rem;
+  left: 0.8rem;
+  min-width: 1.15rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: var(--crvena);
+  color: var(--povrsina);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.15rem;
+}
+
+.ikonica {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: none;
+  background: none;
+  color: var(--tekst-blago);
+  cursor: pointer;
+  font: inherit;
+  padding: 0.3rem;
+}
+
+.korisnik {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  text-align: right;
+}
+
+.korisnik small {
+  color: var(--tekst-blago);
+}
+
+.hamburger,
+.tekst-telefon {
+  display: none;
+}
+
+/* ----- Telefon: meni se sklapa ispod dugmeta ----- */
+@media (max-width: 860px) {
+  .hamburger {
+    display: block;
+    margin-left: auto;
+    border: none;
+    background: none;
+    color: var(--tinta);
+    cursor: pointer;
+  }
+
+  .meni {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 0.5rem 1.25rem 1rem;
+    background: var(--povrsina);
+    border-bottom: 1px solid var(--ivica);
+  }
+
+  .meni.otvoren {
+    display: flex;
+  }
+
+  .meni > a,
+  .zvonce {
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--ivica);
+  }
+
+  .desno {
+    margin: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .tekst-telefon {
+    display: inline;
+  }
+
+  .broj {
+    position: static;
+  }
+
+  .ikonica {
+    padding: 0.4rem 0;
+  }
+
+  .korisnik {
+    text-align: left;
+    padding-top: 0.5rem;
+  }
+}

@@ -75,4 +75,23 @@ export class AuthService {
     return this.prijavljeniKorisnik() !== null;
   }
 
+  // Uloga prijavljenog korisnika, npr. 'STUDENT' (ili null ako niko nije prijavljen)
+  uloga(): string | null {
+    return this.prijavljeniKorisnik()?.uloga ?? null;
+  }
+
+  // Glavna stranica za ulogu - tu korisnik ide posle prijave
+  pocetnaStranica(): string {
+    switch (this.uloga()) {
+      case 'STUDENT':
+        return '/student/termini';
+      case 'PROFESOR':
+        return '/profesor/termini';
+      case 'ADMIN':
+        return '/admin/korisnici';
+      default:
+        return '/';
+    }
+  }
+
 }

@@ -1,0 +1,47 @@
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 760px;
+}
+
+.notifikacija {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: left;
+  font: inherit;
+  color: var(--tekst);
+  background: var(--povrsina);
+  border: 1px solid var(--ivica);
+  border-left: 4px solid var(--ivica);
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  cursor: default;
+}
+
+/* Nepročitana: zelena ivica i podebljan tekst, klik je označava */
+.neprocitana {
+  border-left-color: var(--akcenat);
+  cursor: pointer;
+}
+
+.neprocitana .tekst {
+  font-weight: 600;
+}
+
+.vrh {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: var(--tekst-blago);
+}
+
+.vrh strong {
+  color: var(--tinta);
+}

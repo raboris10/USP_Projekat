@@ -1,0 +1,9 @@
+<!-- aria-live -> čitači ekrana pročitaju novu poruku čim se pojavi -->
+<div class="poruke" aria-live="polite">
+  @for (poruka of porukaService.poruke(); track poruka.id) {
+    <div class="poruka" [class.greska-poruka]="poruka.vrsta === 'greska'" role="status">
+      <span>{{ poruka.tekst }}</span>
+      <button type="button" (click)="porukaService.ukloni(poruka.id)" aria-label="Zatvori poruku">&times;</button>
+    </div>
+  }
+</div>

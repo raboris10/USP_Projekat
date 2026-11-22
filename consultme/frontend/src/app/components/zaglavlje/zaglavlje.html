@@ -1,0 +1,66 @@
+<header class="zaglavlje">
+  <div class="red">
+
+    <a class="logo" [routerLink]="authService.pocetnaStranica()" (click)="zatvoriMeni()">ConsultMe</a>
+
+    <!-- Dugme za meni - vidi se samo na telefonu (vidi zaglavlje.css) -->
+    <button type="button" class="hamburger" (click)="meniOtvoren.set(!meniOtvoren())"
+            [attr.aria-expanded]="meniOtvoren()" aria-controls="glavni-meni" aria-label="Meni">
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+        <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+    </button>
+
+    <nav id="glavni-meni" class="meni" [class.otvoren]="meniOtvoren()">
+      <!-- routerLinkActive dodaje klasu "aktivan" linku trenutne stranice -->
+      @for (link of linkovi(); track link.putanja) {
+        <a [routerLink]="link.putanja" routerLinkActive="aktivan" [routerLinkActiveOptions]="{ exact: true }"
+           (click)="zatvoriMeni()">{{ link.naziv }}</a>
+      }
+
+      <div class="desno">
+        <!-- Zvonce sa brojem nepročitanih notifikacija -->
+        <a routerLink="/notifikacije" routerLinkActive="aktivan" class="zvonce" (click)="zatvoriMeni()"
+           [attr.aria-label]="'Notifikacije, nepročitanih: ' + notifikacijaService.brojNeprocitanih()">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15L6 16Zm4 4a2 2 0 0 0 4 0"
+                  fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+          </svg>
+          <span class="tekst-telefon">Notifikacije</span>
+          @if (notifikacijaService.brojNeprocitanih() > 0) {
+            <span class="broj">{{ notifikacijaService.brojNeprocitanih() }}</span>
+          }
+        </a>
+
+        <!-- Prekidač teme: prikazuje ikonicu teme NA KOJU se prelazi -->
+        <button type="button" class="ikonica" (click)="temaService.promeni()"
+                [attr.aria-label]="temaService.tema() === 'tamna' ? 'Uključi svetlu temu' : 'Uključi tamnu temu'"
+                [title]="temaService.tema() === 'tamna' ? 'Svetla tema' : 'Tamna tema'">
+          @if (temaService.tema() === 'tamna') {
+            <!-- sunce -->
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8" />
+              <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"
+                    stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+          } @else {
+            <!-- mesec -->
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"
+                    fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+            </svg>
+          }
+          <span class="tekst-telefon">{{ temaService.tema() === 'tamna' ? 'Svetla tema' : 'Tamna tema' }}</span>
+        </button>
+
+        <div class="korisnik">
+          <strong>{{ authService.prijavljeniKorisnik()?.ime }} {{ authService.prijavljeniKorisnik()?.prezime }}</strong>
+          <small>{{ nazivUloge() }}</small>
+        </div>
+
+        <button type="button" class="dugme dugme-sekundarno dugme-malo" (click)="odjaviSe()">Odjavi se</button>
+      </div>
+    </nav>
+
+  </div>
+</header>

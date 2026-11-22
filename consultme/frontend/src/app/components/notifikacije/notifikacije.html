@@ -1,0 +1,28 @@
+<div class="naslov-strane">
+  <h1>Notifikacije</h1>
+  @if (imaNeprocitanih()) {
+    <button type="button" class="dugme dugme-sekundarno" (click)="oznaciSve()">Označi sve kao pročitane</button>
+  }
+</div>
+
+@if (ucitavanje()) {
+  <p>Učitavanje...</p>
+} @else if (notifikacije().length === 0) {
+  <p class="prazno">Nemate notifikacija. Ovde će stizati potvrde, izmene termina i podsetnici.</p>
+} @else {
+  <ul class="lista">
+    @for (n of notifikacije(); track n.id) {
+      <li>
+        <!-- Cela notifikacija je dugme: klik je označava kao pročitanu -->
+        <button type="button" class="notifikacija" [class.neprocitana]="!n.procitana" (click)="oznaci(n)">
+          <span class="vrh">
+            <strong>{{ naslov(n.tip) }}</strong>
+            <!-- DatePipe: "2026-11-22T18:30:00" -> "22.11.2026. 18:30" -->
+            <time>{{ n.kreirana | date: 'dd.MM.yyyy. HH:mm' }}</time>
+          </span>
+          <span class="tekst">{{ n.poruka }}</span>
+        </button>
+      </li>
+    }
+  </ul>
+}

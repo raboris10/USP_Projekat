@@ -1,3 +1,8 @@
+<!-- Prekidač teme i na stranici za prijavu (u zaglavlju je isti) -->
+<button type="button" class="tema" (click)="temaService.promeni()">
+  {{ temaService.tema() === 'tamna' ? 'Svetla tema' : 'Tamna tema' }}
+</button>
+
 <main class="strana">
 
   <!-- Leva strana: naziv i kratak opis aplikacije -->
