@@ -73,4 +73,8 @@ public interface TerminRepository extends JpaRepository<Termin, Long> {
 	// (npr. AKTIVAN termin u budućnosti -> profesor ne sme da se deaktivira)
 	boolean existsByProfesorIdAndStatusAndPocetakAfter(Long profesorId, StatusTermina status, LocalDateTime posle);
 
+	// Aktivni termini koji počinju u zadatom intervalu (posle, doVremena] - za podsetnike
+	List<Termin> findByStatusAndPocetakAfterAndPocetakLessThanEqual(StatusTermina status, LocalDateTime posle,
+			LocalDateTime doVremena);
+
 }
