@@ -1,5 +1,7 @@
 # ConsultMe
 
+[![Build](https://github.com/raboris10/USP_Projekat/actions/workflows/build.yml/badge.svg)](https://github.com/raboris10/USP_Projekat/actions/workflows/build.yml)
+
 **Portal za zakazivanje konsultacija sa nastavnicima**
 
 Studentski projekat iz predmeta *Upravljanje softverskim projektom*.
