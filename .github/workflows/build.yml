@@ -1,0 +1,61 @@
+# GitHub Actions: automatska provera da li se projekat uspešno build-uje.
+# Pokreće se na svaki Pull Request ka main grani i na svaki push na main.
+# Dva posla (jobs) rade paralelno: jedan za backend, jedan za frontend.
+
+name: Build
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+
+  backend:
+    name: Backend (Spring Boot)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: consultme/backend
+    steps:
+      - name: Preuzimanje koda
+        uses: actions/checkout@v5
+
+      - name: Instalacija Jave 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+
+      # Isto kao u Dockerfile-u: uklanja Windows kraj linije iz mvnw i dozvoljava pokretanje
+      - name: Priprema Maven wrapper-a
+        run: sed -i 's/\r$//' mvnw && chmod +x mvnw
+
+      # Testovi se preskaču jer im treba baza (vidi ConsultmeApplicationTests.java)
+      - name: Build backenda
+        run: ./mvnw -B package -DskipTests
+
+  frontend:
+    name: Frontend (Angular)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: consultme/frontend
+    steps:
+      - name: Preuzimanje koda
+        uses: actions/checkout@v5
+
+      - name: Instalacija Node.js 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: consultme/frontend/package-lock.json
+
+      - name: Instalacija paketa
+        run: npm ci
+
+      - name: Build frontenda
+        run: npm run build
