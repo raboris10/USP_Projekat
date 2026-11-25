@@ -145,6 +145,7 @@ Fajl `.env` se ne nalazi na GitHub-u, jer sadrži lozinke: svako ga pravi sam od
 | `v1.2` | Dopunjena Definicija projekta |
 | `v2.0` | Definicija projekta v2.0 |
 | `v2.0-potpisano` | Definicija projekta i Studija izvodljivosti v2.0, potpisane od strane tima |
+| `v2.3` | Definicija projekta v2.3: usklađena sa obrascem (revizije, funkcionalna ograničenja, gantogram, dopunjene pretpostavke, rizici i organizacija); rokovi i budžet nepromenjeni |
 
 ## Način rada
 
