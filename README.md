@@ -136,6 +136,7 @@ Fajl `.env` se ne nalazi na GitHub-u, jer sadrži lozinke: svako ga pravi sam od
 | [Definicija projekta](docs/ConsultMe_Definicija_projekta.pdf) | Project Charter: ciljevi, opseg, rokovi, budžet, rizici, organizacija |
 | [Studija izvodljivosti](docs/ConsultMe_Studija_izvodljivosti.pdf) | Feasibility Study: finansijska, tehnička, organizaciona, operativna, pravna i kulturološka izvodljivost |
 | [Pokretanje aplikacije](consultme/POKRETANJE.md) | Instalacija, `.env`, nalozi, komande, česti problemi |
+| [UX prototip (Figma)](docs/ConsultMe_Figma.zip) | Figma fajl (.fig), 13 izvezenih ekrana (PNG) i pregled ekrana sa opisima (PDF) |
 
 ### Verzije dokumentacije
 
